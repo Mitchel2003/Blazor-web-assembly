@@ -1,4 +1,0 @@
-C:\Users\herre\Documents\AppWeb\AppWeb.Client\wwwroot\appsettings.json
-C:\Users\herre\Documents\AppWeb\AppWeb.Client\wwwroot\appsettings.Development.json
-wwwroot\appsettings.Development.json
-wwwroot\appsettings.json
