@@ -11,9 +11,8 @@ builder.Services.AddControllersWithViews(); //Controllers & Views (optional but 
 var apiBase = new Uri(builder.Configuration["ApiBase"] ?? "https://localhost:5001/"); //HTTP clients for prerendered components
 builder.Services.AddHttpClient<IUsersApiClient, UsersApiClient>(c => c.BaseAddress = apiBase); //suggested system more reusable
 
-// Clean Architecture layers
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication(); // Application layer services and configurations
+builder.Services.AddInfrastructure(builder.Configuration); //GraphQL, Repositories, etc.
 
 var app = builder.Build();
 
@@ -26,18 +25,20 @@ app.UseHttpsRedirection();
 app.UseStaticFiles(); //Static content for MVC & Blazor
 app.UseRouting(); //Routing middleware
 
-// Authentication / Authorization
+//Authentication
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseAntiforgery(); //Antiforgery middleware
-app.MapStaticAssets(); //Static assets middleware
+//Middleware WASM prerendering
+app.UseAntiforgery();
+app.MapStaticAssets();
 
 // Razor Components (WASM+SSR)
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(AppWeb.Client._Imports).Assembly);
 
-//GraphQL endpoint and conventional route mapping moved to extension
-app.MapAppWebEndpoints();
+//GraphQL endpoint and conventional route mapping MVC (Auth, etc.)
+app.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Login}/{id?}");
+app.MapGraphQL("/graphql"); //GraphQL endpoint
 app.Run();

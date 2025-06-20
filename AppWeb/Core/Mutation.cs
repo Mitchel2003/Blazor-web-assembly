@@ -1,7 +1,7 @@
+using AppWeb.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Reflection;
-using AppWeb.Domain;
 
 namespace AppWeb.Core;
 

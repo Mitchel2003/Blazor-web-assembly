@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using AppWeb.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using AppWeb.Domain;
 
 namespace AppWeb.Core;
+
 public class Query<T> where T : class
 {
     private readonly IDbContextFactory<AppDBContext> _factory;

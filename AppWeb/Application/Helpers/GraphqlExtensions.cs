@@ -1,21 +1,10 @@
 using HotChocolate.Execution.Configuration;
 using System.Reflection;
 
-namespace AppWeb.Application.Shared;
+namespace AppWeb.Application.Helpers;
 
-public static class Helpers
+public static class GraphqlExtensions
 {
-    /**
-     * Helper method to get the model type by name.
-     * Let's assume the models are in Models namespace.
-     * Examples: User, Product, Order; system dinamic.
-     */
-    public static Type GetModelType(string model) =>
-        Type.GetType($"AppLogin.Models.{model}", throwOnError: false, ignoreCase: true)
-            ?? throw new GraphQLException(ErrorBuilder.New().SetMessage($"Model '{model}' not found.").SetCode("MODEL_NOT_FOUND").Build());
-    /*---------------------------------------------------------------------------------------------------------*/
-
-    /*--------------------------------------------------actions--------------------------------------------------*/
     /** Helper method to add all model types from a specific assembly and namespace to the GraphQL executor builder */
     public static IRequestExecutorBuilder AddAllModelTypes(this IRequestExecutorBuilder builder, Assembly assembly, string @namespace)
     {

@@ -1,5 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
+using AppWeb.Application.Common.Behaviors;
+using AppWeb.Application.Mapping;
 using System.Reflection;
+using FluentValidation;
 using MediatR;
 
 namespace AppWeb.Application;
@@ -7,8 +9,11 @@ namespace AppWeb.Application;
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
-    { //Registers all MediatR handlers in the current assembly
+    { //Registers all MediatR handlers, validators (FluentValidation), and mapper (Mapster)
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), includeInternalTypes: true);
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>)); //Validator behavior
+        services.AddMapping(); //Registers Mapster configuration
         return services;
     }
 }

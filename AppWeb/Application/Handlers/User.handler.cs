@@ -2,6 +2,7 @@ using AppWeb.Shared.Dtos;
 using AppWeb.Models;
 using AppWeb.Core;
 using MediatR;
+using AppWeb.Application.Contracts.Persistence.Repositories;
 
 namespace AppWeb.Application.Handlers;
 
@@ -9,25 +10,25 @@ namespace AppWeb.Application.Handlers;
 /** Implements the IRequestHandler interface for the GetUsers request. */
 public sealed class GetUsersHandler : IRequestHandler<GetUsers, IEnumerable<User>>
 {
-    private readonly Query<User> _query;
-    public GetUsersHandler(Query<User> query) => _query = query;
-    public Task<IEnumerable<User>> Handle(GetUsers request, CancellationToken ct) => _query.GetAll();
+    private readonly IUserRepository _repo;
+    public GetUsersHandler(IUserRepository repo) => _repo = repo;
+    public Task<IEnumerable<User>> Handle(GetUsers request, CancellationToken ct) => _repo.GetAllAsync();
 }
 
 /** Implements the IRequestHandler interface for the GetUserById request. */
 public sealed class GetUserByIdHandler : IRequestHandler<GetUserById, User?>
 {
-    private readonly Query<User> _query;
-    public GetUserByIdHandler(Query<User> query) => _query = query;
-    public Task<User?> Handle(GetUserById request, CancellationToken ct) => _query.GetById(request.Id);
+    private readonly IUserRepository _repo;
+    public GetUserByIdHandler(IUserRepository repo) => _repo = repo;
+    public Task<User?> Handle(GetUserById request, CancellationToken ct) => _repo.GetByIdAsync(request.Id);
 }
 
 /** Implements the IRequestHandler interface for the GetUsersByEmail request. */
 public sealed class GetUsersByEmailHandler : IRequestHandler<GetUsersByEmail, IEnumerable<User>>
 {
-    private readonly Query<User> _query;
-    public GetUsersByEmailHandler(Query<User> query) => _query = query;
-    public Task<IEnumerable<User>> Handle(GetUsersByEmail request, CancellationToken ct) => _query.GetByFilter(u => u.Email == request.Email);
+    private readonly IUserRepository _repo;
+    public GetUsersByEmailHandler(IUserRepository repo) => _repo = repo;
+    public Task<IEnumerable<User>> Handle(GetUsersByEmail request, CancellationToken ct) => _repo.GetByFilterAsync(u => u.Email == request.Email);
 }
 /*---------------------------------------------------------------------------------------------------------*/
 
@@ -35,25 +36,25 @@ public sealed class GetUsersByEmailHandler : IRequestHandler<GetUsersByEmail, IE
 /** Implements the IRequestHandler interface for the CreateUser request. */
 public sealed class CreateUserHandler : IRequestHandler<CreateUser, User>
 {
-    private readonly Mutation<User> _mutation;
-    public CreateUserHandler(Mutation<User> mutation) => _mutation = mutation;
-    public async Task<User> Handle(CreateUser request, CancellationToken cancellationToken) => await _mutation.Create(request.Input);
+    private readonly IUserRepository _repo;
+    public CreateUserHandler(IUserRepository repo) => _repo = repo;
+    public async Task<User> Handle(CreateUser request, CancellationToken cancellationToken) => await _repo.CreateAsync(request.Input);
 }
 
 /** Implements the IRequestHandler interface for the UpdateUser request. */
 public sealed class UpdateUserHandler : IRequestHandler<UpdateUser, User>
 {
-    private readonly Mutation<User> _mutation;
-    public UpdateUserHandler(Mutation<User> mutation) => _mutation = mutation;
-    public async Task<User> Handle(UpdateUser request, CancellationToken cancellationToken) => await _mutation.Update(request.Id, request.Input);
+    private readonly IUserRepository _repo;
+    public UpdateUserHandler(IUserRepository repo) => _repo = repo;
+    public async Task<User> Handle(UpdateUser request, CancellationToken cancellationToken) => await _repo.UpdateAsync(request.Id, request.Input);
 }
 
 /** Implements the IRequestHandler interface for the DeleteUser request. */
 public sealed class DeleteUserHandler : IRequestHandler<DeleteUser, bool>
 {
-    private readonly Mutation<User> _mutation;
-    public DeleteUserHandler(Mutation<User> mutation) => _mutation = mutation;
-    public Task<bool> Handle(DeleteUser request, CancellationToken cancellationToken) => _mutation.Delete(request.Id);
+    private readonly IUserRepository _repo;
+    public DeleteUserHandler(IUserRepository repo) => _repo = repo;
+    public Task<bool> Handle(DeleteUser request, CancellationToken cancellationToken) => _repo.DeleteAsync(request.Id);
 }
 
 /** User-specific CQRS records that wrap the generic primitives. */

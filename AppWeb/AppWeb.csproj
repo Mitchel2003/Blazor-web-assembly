@@ -9,6 +9,9 @@
   <ItemGroup>
     <ProjectReference Include="..\AppWeb.Client\AppWeb.Client.csproj" />
 	<ProjectReference Include="..\AppWeb.Shared\AppWeb.Shared.csproj" />
+	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+	<PackageReference Include="Mapster" Version="7.4.0" />
+	<PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="MediatR" Version="12.5.0" />
     <PackageReference Include="HotChocolate.Data" Version="15.1.5" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.5" />
@@ -23,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Domain\" />
     <Folder Include="Application\Graphql\" />
     <Folder Include="Controllers\" />
     <Folder Include="Models\" />

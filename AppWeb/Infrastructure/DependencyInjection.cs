@@ -1,11 +1,15 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+using AppWeb.Infrastructure.Persistence.Repositories;
 using AppWeb.Application.Graphql.Mutations;
 using AppWeb.Application.Graphql.Queries;
-using Microsoft.EntityFrameworkCore;
-using AppWeb.Application.Shared;
+using AppWeb.Infrastructure.Persistence;
+using AppWeb.Application.Helpers;
 using AppWeb.Models;
-using AppWeb.Domain;
-using AppWeb.Core;
+
+using AppWeb.Application.Contracts.Persistence.Repositories;
+using AppWeb.Application.Contracts.Persistence;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using HotChocolate;
 
 namespace AppWeb.Infrastructure;
 
@@ -16,9 +20,8 @@ public static class DependencyInjection
         //Connection string configuration
         services.AddPooledDbContextFactory<AppDBContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("conection")));
 
-        //GraphQL helpers (generic Mutation<T>/Query<T>)
-        services.AddScoped(typeof(Query<>));
-        services.AddScoped(typeof(Mutation<>));
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); //Generic repository registration
+        services.AddAllRepositories(typeof(IUserRepository).Assembly, typeof(UserRepository).Assembly);
 
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
         { //Authentication (Cookie)
@@ -34,7 +37,8 @@ public static class DependencyInjection
                 .AddAllModelTypes(typeof(User).Assembly, "AppWeb.Models")
                 .AddAllExtensions(typeof(UserQuery).Assembly, "AppWeb.Application.Graphql.Queries")
                 .AddAllExtensions(typeof(UserMutation).Assembly, "AppWeb.Application.Graphql.Mutations")
-                .AddProjections().AddFiltering().AddSorting();
+                .AddProjections().AddFiltering().AddSorting()
+                .InitializeOnStartup();
         return services;
     }
 }

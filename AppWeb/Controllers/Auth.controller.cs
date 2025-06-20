@@ -24,7 +24,7 @@ namespace AppLogin.Controllers
         /*---------------------------------------------------------------------------------------------------------*/
 
         /*--------------------------------------------------actions--------------------------------------------------*/
-        /** 
+        /**
          * This method handles user loggin by validating the provided information on form.
          * It also checks for existing of cookies to handle authentication.
          */
