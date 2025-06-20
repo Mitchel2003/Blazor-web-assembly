@@ -1,9 +1,21 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\herre\\Documents\\AppWeb\\",
+  "WorkspaceRootPath": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|c:\\users\\herre\\documents\\appweb\\appweb\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|c:\\users\\herre\\documents\\blazor-web-assembly\\appweb\\infrastructure\\persistence\\configurations\\userconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|solutionrelative:appweb\\infrastructure\\persistence\\configurations\\userconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|c:\\users\\herre\\documents\\blazor-web-assembly\\appweb\\infrastructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|solutionrelative:appweb\\infrastructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|c:\\users\\herre\\documents\\blazor-web-assembly\\appweb\\infrastructure\\persistence\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|solutionrelative:appweb\\infrastructure\\persistence\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|c:\\users\\herre\\documents\\blazor-web-assembly\\appweb\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8395FBB7-EA17-49E3-B4DD-AD23BFA33C02}|AppWeb\\AppWeb.csproj|solutionrelative:appweb\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -23,14 +35,53 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\herre\\Documents\\AppWeb\\AppWeb\\Program.cs",
-              "RelativeDocumentMoniker": "AppWeb\\Program.cs",
-              "ToolTip": "C:\\Users\\herre\\Documents\\AppWeb\\AppWeb\\Program.cs",
-              "RelativeToolTip": "AppWeb\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABTAAAAAAAAAA==",
+              "Title": "UserConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Infrastructure\\Persistence\\Configurations\\UserConfiguration.cs",
+              "RelativeDocumentMoniker": "AppWeb\\Infrastructure\\Persistence\\Configurations\\UserConfiguration.cs",
+              "ToolTip": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Infrastructure\\Persistence\\Configurations\\UserConfiguration.cs",
+              "RelativeToolTip": "AppWeb\\Infrastructure\\Persistence\\Configurations\\UserConfiguration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-19T23:03:26.659Z",
+              "WhenOpened": "2025-06-20T00:10:27.086Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppDBContext.cs",
+              "DocumentMoniker": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Infrastructure\\Persistence\\AppDBContext.cs",
+              "RelativeDocumentMoniker": "AppWeb\\Infrastructure\\Persistence\\AppDBContext.cs",
+              "ToolTip": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Infrastructure\\Persistence\\AppDBContext.cs",
+              "RelativeToolTip": "AppWeb\\Infrastructure\\Persistence\\AppDBContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABTAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T00:10:18.324Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Infrastructure\\Persistence\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "AppWeb\\Infrastructure\\Persistence\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Infrastructure\\Persistence\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "AppWeb\\Infrastructure\\Persistence\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T00:10:14.168Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Program.cs",
+              "RelativeDocumentMoniker": "AppWeb\\Program.cs",
+              "ToolTip": "C:\\Users\\herre\\Documents\\Blazor-web-assembly\\AppWeb\\Program.cs",
+              "RelativeToolTip": "AppWeb\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T00:09:52.343Z",
               "EditorCaption": ""
             }
           ]

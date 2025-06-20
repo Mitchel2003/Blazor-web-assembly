@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authentication; // For authentication-related functio
 using Microsoft.AspNetCore.Authentication.Cookies; // For cookie authentication
 using System.Security.Claims;
 
-namespace AppLogin.Controllers
+namespace AppWeb.Controllers
 {
     public class AuthController : Controller
     {
@@ -21,13 +21,12 @@ namespace AppLogin.Controllers
 
         [HttpGet]
         public IActionResult Register() => View();
-        /*---------------------------------------------------------------------------------------------------------*/
 
-        /*--------------------------------------------------actions--------------------------------------------------*/
         /**
          * This method handles user loggin by validating the provided information on form.
          * It also checks for existing of cookies to handle authentication.
          */
+        #region Action.login ------------------------------------------------------------
         [HttpPost]
         public async Task<IActionResult> Login(LoginInput user)
         {
@@ -53,11 +52,13 @@ namespace AppLogin.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), properties);
             return RedirectToAction("Index", "Home"); // Assuming you have a HomeController with an Index action
         }
+        #endregion ---------------------------------------------------------------------
 
-        /** 
+        /**
          * This method handles user registration by validating the provided information and saving it to the database.
          * It also checks for existing users with the same email.
          */
+        #region Action.register ------------------------------------------------------------
         [HttpPost]
         public async Task<IActionResult> Register(CreateUserInput user)
         {
@@ -78,5 +79,6 @@ namespace AppLogin.Controllers
             ViewData["ErrorMessage"] = "Registration failed. Please try again."; // Set an error message to be displayed in the view
             return View();
         }
+        #endregion ---------------------------------------------------------------------
     }
 }

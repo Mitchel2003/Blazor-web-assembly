@@ -1,12 +1,12 @@
+using AppWeb.Application.Contracts.Persistence.Repositories;
+using AppWeb.Application.Common.Core;
 using AppWeb.Shared.Dtos;
 using AppWeb.Models;
-using AppWeb.Core;
 using MediatR;
-using AppWeb.Application.Contracts.Persistence.Repositories;
 
 namespace AppWeb.Application.Handlers;
 
-/*--------------------------------------------------queries--------------------------------------------------*/
+#region Queries ------------------------------------------------------------
 /** Implements the IRequestHandler interface for the GetUsers request. */
 public sealed class GetUsersHandler : IRequestHandler<GetUsers, IEnumerable<User>>
 {
@@ -30,9 +30,9 @@ public sealed class GetUsersByEmailHandler : IRequestHandler<GetUsersByEmail, IE
     public GetUsersByEmailHandler(IUserRepository repo) => _repo = repo;
     public Task<IEnumerable<User>> Handle(GetUsersByEmail request, CancellationToken ct) => _repo.GetByFilterAsync(u => u.Email == request.Email);
 }
-/*---------------------------------------------------------------------------------------------------------*/
+#endregion ---------------------------------------------------------------------
 
-/*--------------------------------------------------commands--------------------------------------------------*/
+#region Commands ------------------------------------------------------------
 /** Implements the IRequestHandler interface for the CreateUser request. */
 public sealed class CreateUserHandler : IRequestHandler<CreateUser, User>
 {
@@ -56,10 +56,10 @@ public sealed class DeleteUserHandler : IRequestHandler<DeleteUser, bool>
     public DeleteUserHandler(IUserRepository repo) => _repo = repo;
     public Task<bool> Handle(DeleteUser request, CancellationToken cancellationToken) => _repo.DeleteAsync(request.Id);
 }
+#endregion ---------------------------------------------------------------------
 
 /** User-specific CQRS records that wrap the generic primitives. */
-#region Records ----------------------------------------------------------------
-
+#region Records ------------------------------------------------------------
 public sealed record GetUsers() : GetAllQuery<User>();
 public sealed record GetUserById(int Id) : GetByIdQuery<User>(Id);
 public sealed record GetUsersByEmail(string Email) : GetByFilterQuery<User>(p => p.Email == Email);
@@ -67,5 +67,4 @@ public sealed record GetUsersByEmail(string Email) : GetByFilterQuery<User>(p =>
 public sealed record CreateUser(UserDto Input) : CreateCommand<UserDto, User>(Input);
 public sealed record UpdateUser(int Id, UserDto Input) : UpdateCommand<UserDto, User>(Id, Input);
 public sealed record DeleteUser(int Id) : DeleteCommand<User>(Id);
-
-#endregion --------------------------------------------------------------------
+#endregion ---------------------------------------------------------------------

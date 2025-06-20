@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using AppWeb.Models;
 
-namespace AppLogin.Controllers
+namespace AppWeb.Controllers
 {
     [Authorize]
     public class HomeController : Controller
@@ -15,9 +15,8 @@ namespace AppLogin.Controllers
 
         public IActionResult Index() => View();
         public IActionResult Privacy() => View();
-        /*---------------------------------------------------------------------------------------------------------*/
 
-        /*--------------------------------------------------actions--------------------------------------------------*/
+        #region Actions ------------------------------------------------------------
         /** 
          * This method handles the error page.
          * It returns an ErrorViewModel with the current request ID for debugging purposes.
@@ -34,5 +33,6 @@ namespace AppLogin.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
         }
+        #endregion ---------------------------------------------------------------------
     }
 }

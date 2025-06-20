@@ -13,9 +13,8 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
 {
     private readonly IDbContextFactory<AppDBContext> _context;
     public Repository(IDbContextFactory<AppDBContext> context) => _context = context;
-    /*---------------------------------------------------------------------------------------------------------*/
 
-    /*--------------------------------------------------queries--------------------------------------------------*/
+    #region Queries ------------------------------------------------------------    
     public async Task<IEnumerable<TEntity>> GetAllAsync()
     {
         await using var db = await _context.CreateDbContextAsync();
@@ -33,9 +32,9 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
         await using var db = await _context.CreateDbContextAsync();
         return await db.Set<TEntity>().AsNoTracking().Where(filter).ToListAsync();
     }
-    /*---------------------------------------------------------------------------------------------------------*/
+    #endregion ---------------------------------------------------------------------
 
-    /*--------------------------------------------------mutations--------------------------------------------------*/
+    #region Mutations ------------------------------------------------------------    
     public async Task<TEntity> CreateAsync<TInput>(TInput dto) where TInput : class
     {
         var entity = dto.Adapt<TEntity>();
@@ -69,3 +68,4 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
         return true;
     }
 }
+#endregion ---------------------------------------------------------------------

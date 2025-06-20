@@ -6,10 +6,9 @@ using AppWeb.Application.Helpers;
 using AppWeb.Models;
 
 using AppWeb.Application.Contracts.Persistence.Repositories;
-using AppWeb.Application.Contracts.Persistence;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using AppWeb.Application.Contracts.Persistence;
 using Microsoft.EntityFrameworkCore;
-using HotChocolate;
 
 namespace AppWeb.Infrastructure;
 
