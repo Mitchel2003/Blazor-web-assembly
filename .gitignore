@@ -1,6 +1,24 @@
+# Visual Studio
 .vs/
-bin/
-obj/
 *.user
 *.suo
-*.vs/
+
+# Build results
+bin/
+obj/
+
+# Others
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Rider
+.idea/
+
+# Local secrets
+appsettings.Development.json
+secrets.json
+
+# Node
+node_modules/

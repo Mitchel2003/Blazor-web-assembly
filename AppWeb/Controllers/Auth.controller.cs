@@ -22,11 +22,11 @@ namespace AppWeb.Controllers
         [HttpGet]
         public IActionResult Register() => View();
 
+        #region Action.login ------------------------------------------------------------
         /**
          * This method handles user loggin by validating the provided information on form.
          * It also checks for existing of cookies to handle authentication.
          */
-        #region Action.login ------------------------------------------------------------
         [HttpPost]
         public async Task<IActionResult> Login(LoginInput user)
         {
@@ -54,11 +54,11 @@ namespace AppWeb.Controllers
         }
         #endregion ---------------------------------------------------------------------
 
+        #region Action.register ------------------------------------------------------------
         /**
          * This method handles user registration by validating the provided information and saving it to the database.
          * It also checks for existing users with the same email.
          */
-        #region Action.register ------------------------------------------------------------
         [HttpPost]
         public async Task<IActionResult> Register(CreateUserInput user)
         {

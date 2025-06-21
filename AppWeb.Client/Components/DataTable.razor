@@ -1,0 +1,28 @@
+@typeparam TItem
+
+<table class="min-w-full table-auto border-collapse border border-slate-300 dark:border-slate-700">
+    @if (HeaderContent is not null)
+    { <thead> @HeaderContent </thead> }
+    <tbody>
+        @if (IsEmpty)
+        {
+            <tr>
+                <td colspan="100%"><em>@EmptyText</em></td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in PagedItems)
+            { @RowTemplate(item) }
+        }
+    </tbody>
+</table>
+
+@if (!IsEmpty && TotalPages > 1)
+{
+    <div class="flex justify-end gap-2 mt-3">
+        <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-40" @onclick="PrevPage" disabled="@DisablePrev">Prev</button>
+        <span class="px-2 py-1 select-none">@CurrentPage / @TotalPages</span>
+        <button class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-40" @onclick="NextPage" disabled="@DisableNext">Next</button>
+    </div>
+}

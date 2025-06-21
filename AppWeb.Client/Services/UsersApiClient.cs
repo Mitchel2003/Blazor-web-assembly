@@ -11,7 +11,7 @@ public class UsersApiClient : IUsersApiClient
     public UsersApiClient(HttpClient http) => _http = http;
 
     public async Task<IReadOnlyList<UserListDto>> GetUsersAsync(CancellationToken cancellationToken = default)
-    {   
+    {
         var requestBody = new { query = GraphQlQuery };
         var response = await _http.PostAsJsonAsync("/graphql", requestBody, cancellationToken);
         response.EnsureSuccessStatusCode();
@@ -23,8 +23,8 @@ public class UsersApiClient : IUsersApiClient
     private sealed class GqlResponse { public DataWrapper? Data { get; set; } }
     private sealed class DataWrapper { public List<UserListDto>? Users { get; set; } }
 }
-/*---------------------------------------------------------------------------------------------------------*/
 
-/*--------------------------------------------------Interface--------------------------------------------------*/
+#region Interface ------------------------------------------------------------
 public interface IUsersApiClient
 { Task<IReadOnlyList<UserListDto>> GetUsersAsync(CancellationToken cancellationToken = default); }
+#endregion ---------------------------------------------------------------------
