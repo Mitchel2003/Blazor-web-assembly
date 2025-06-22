@@ -33,7 +33,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
-// Razor Components (WASM+SSR)
+// Razor Components (WASM+CSR)
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(AppWeb.Client._Imports).Assembly);

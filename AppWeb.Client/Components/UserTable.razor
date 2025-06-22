@@ -1,0 +1,25 @@
+@using AppWeb.Shared.Dtos
+@using MudBlazor
+
+@namespace AppWeb.Client.Components
+
+<MudPaper Class="p-4">
+    <MudTextField @bind-Value="_searchString" Placeholder="Search…" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mb-4" />
+    <MudTable Items="FilteredUsers" Dense="true" Hover="true" Bordered="true" Striped="true" Elevation="0" RowsPerPage="10">
+        <ToolBarContent>
+            <MudText Typo="Typo.subtitle2">@($"Users ({FilteredUsers.Count()})")</MudText>
+            <MudSpacer />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddClicked">Add</MudButton>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Id</MudTh>
+            <MudTh>Username</MudTh>
+            <MudTh>Email</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="user">
+            <MudTd DataLabel="Id">@user.Id</MudTd>
+            <MudTd DataLabel="Username">@user.Username</MudTd>
+            <MudTd DataLabel="Email">@user.Email</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>

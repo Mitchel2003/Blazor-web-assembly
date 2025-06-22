@@ -2,28 +2,8 @@
 
 <PageTitle>Users</PageTitle>
 
-<h1>Users</h1>
+<MudText Typo="Typo.h5" Class="mb-4">Users</MudText>
 
-@if (users is null)
-{ <p><em>Loading…</em></p> }
-else if (users.Count == 0)
-{ <p>No users found.</p> }
-else
-{
-    <DataTable Items="users" EmptyText="No users found.">
-        <HeaderContent>
-            <tr>
-                <th>Id</th>
-                <th>Username</th>
-                <th>Email</th>
-            </tr>
-        </HeaderContent>
-        <RowTemplate Context="user">
-            <tr>
-                <td>@user.Id</td>
-                <td>@user.Username</td>
-                <td>@user.Email</td>
-            </tr>
-        </RowTemplate>
-    </DataTable>
-}
+@if (users is null) { <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" /> }
+else if (users.Count == 0) { <p>No users found.</p> }
+else { <UserTable Users="users" OnAdd="HandleAddUser" /> }
