@@ -1,8 +1,6 @@
 @using AppWeb.Shared.Dtos
 @using MudBlazor
 
-@namespace AppWeb.Client.Components
-
 <MudPaper Class="p-4">
     <MudTextField @bind-Value="_searchString" Placeholder="Search…" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mb-4" />
     <MudTable Items="FilteredUsers" Dense="true" Hover="true" Bordered="true" Striped="true" Elevation="0" RowsPerPage="10">

@@ -1,0 +1,13 @@
+@page "/users"
+@using AppWeb.Client.Features.Users.Components
+@inject AppWeb.Client.Features.Users.ViewModels.UsersPageViewModel vm
+
+<PageTitle>Users</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-4">Users</MudText>
+
+@if (vm.Users is null) { <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" /> }
+else if (vm.Users.Count == 0) { <p>No users found.</p> }
+else { <TableUser Users="vm.Users" OnAdd="vm.HandleAddUser" /> }
+
+@code { protected override async Task OnInitializedAsync() { await vm.LoadAsync(); } }
