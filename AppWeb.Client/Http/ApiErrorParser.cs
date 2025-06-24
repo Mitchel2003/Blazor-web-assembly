@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace AppWeb.Client.Http;
 
-/// <summary> Helper utilities to transform raw HTTP / GraphQL error payloads into user-friendly messages </summary>
+/// <summary> Helper utilities to transform raw HTTP/GraphQL error payloads into user-friendly messages </summary>
 public static class ApiErrorParser
 {
     /// <summary>
