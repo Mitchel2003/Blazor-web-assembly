@@ -1,7 +1,7 @@
-using AppWeb.Server.Infrastructure;
-using AppWeb.Server.Application;
 using AppWeb.Server.Components;
 using AppWeb.Client.Services;
+using AppWeb.Infrastructure;
+using AppWeb.Application;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
