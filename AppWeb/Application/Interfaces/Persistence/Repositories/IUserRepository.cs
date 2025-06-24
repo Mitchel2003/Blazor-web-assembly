@@ -1,6 +1,6 @@
 using AppWeb.Models;
 
-namespace AppWeb.Application.Contracts.Persistence.Repositories;
+namespace AppWeb.Application.Interfaces.Persistence;
 
 /// <summary>
 /// Repository contract for <see cref="User"/> aggregate.

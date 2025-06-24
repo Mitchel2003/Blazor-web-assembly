@@ -4,9 +4,7 @@ using AppWeb.Models;
 
 namespace AppWeb.Infrastructure.Persistence.Configurations;
 
-/// <summary>
-/// Fluent API configuration for <see cref="User"/> entity. Keeps DbContext clean and adheres to SRP.
-/// </summary>
+/// <summary> Fluent API configuration for <see cref="User"/> entity. Keeps DbContext clean and adheres to SRP. </summary>
 public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)

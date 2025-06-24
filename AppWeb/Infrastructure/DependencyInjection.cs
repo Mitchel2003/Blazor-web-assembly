@@ -1,13 +1,13 @@
 using AppWeb.Infrastructure.Persistence.Repositories;
 using AppWeb.Application.Graphql.Mutations;
 using AppWeb.Application.Graphql.Queries;
+using AppWeb.Application.Graphql.Filters;
 using AppWeb.Infrastructure.Persistence;
 using AppWeb.Application.Helpers;
 using AppWeb.Models;
 
-using AppWeb.Application.Contracts.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using AppWeb.Application.Contracts.Persistence;
+using AppWeb.Application.Interfaces.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace AppWeb.Infrastructure;
@@ -37,6 +37,7 @@ public static class DependencyInjection
                 .AddAllExtensions(typeof(UserQuery).Assembly, "AppWeb.Application.Graphql.Queries")
                 .AddAllExtensions(typeof(UserMutation).Assembly, "AppWeb.Application.Graphql.Mutations")
                 .AddProjections().AddFiltering().AddSorting()
+                .AddErrorFilter<ValidationExceptionFilter>()
                 .InitializeOnStartup();
         return services;
     }

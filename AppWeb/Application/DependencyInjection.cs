@@ -1,5 +1,5 @@
-using AppWeb.Application.Common.Behaviors;
 using AppWeb.Application.Mapping;
+using AppWeb.Application.Core;
 using System.Reflection;
 using FluentValidation;
 using MediatR;

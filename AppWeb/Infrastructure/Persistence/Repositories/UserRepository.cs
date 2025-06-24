@@ -1,4 +1,4 @@
-using AppWeb.Application.Contracts.Persistence.Repositories;
+using AppWeb.Application.Interfaces.Persistence;
 using Microsoft.EntityFrameworkCore;
 using AppWeb.Models;
 

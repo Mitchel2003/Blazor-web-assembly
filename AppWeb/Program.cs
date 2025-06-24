@@ -2,8 +2,10 @@ using AppWeb.Client.Services;
 using AppWeb.Infrastructure;
 using AppWeb.Application;
 using AppWeb.Components;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddMudServices(); //Add MudBlazor services
 
 builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents(); //Add support for Blazor WebAssembly components
 builder.Services.AddControllersWithViews(); //Controllers & Views (optional but keeps compatibility with cookie-auth views)

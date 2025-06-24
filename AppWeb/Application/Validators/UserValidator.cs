@@ -1,4 +1,5 @@
-using AppWeb.Application.Handlers;
+using AppWeb.Application.Interfaces.Persistence;
+using AppWeb.Application.Graphql.Handlers;
 using AppWeb.Shared.Dtos;
 using FluentValidation;
 
@@ -11,10 +12,8 @@ public sealed class UserValidator : AbstractValidator<UserDto>
 {
     public UserValidator()
     {
+        RuleFor(u => u.Username).NotEmpty().MaximumLength(20);
         RuleFor(u => u.Email).NotEmpty().WithMessage("Email is required").EmailAddress();
-        RuleFor(u => u.Username).NotEmpty().MaximumLength(100);
-
-        // Password rule only if provided (Update scenarios), concrete commands add stricter requirements
         RuleFor(u => u.Password).MinimumLength(6).When(u => !string.IsNullOrEmpty(u.Password));
     }
 }
@@ -24,12 +23,17 @@ public sealed class UserValidator : AbstractValidator<UserDto>
 // -----------------------------------------------------------------------------
 public sealed class CreateUserValidator : AbstractValidator<CreateUser>
 {
-    public CreateUserValidator()
+    private readonly IUserRepository _repo;
+    public CreateUserValidator(IUserRepository repo)
     {
+        _repo = repo;
         RuleFor(c => c.Input).NotNull();
-        RuleFor(c => c.Input!).SetValidator(new UserValidator())
-            .DependentRules(() => RuleFor(c => c.Input!.Password).NotEmpty().MinimumLength(6));
+        RuleFor(c => c.Input!).SetValidator(new UserValidator());
+        RuleFor(c => c.Input!.Email).MustAsync(EmailUnique).WithMessage("Email ya existe.");
     }
+
+    private async Task<bool> EmailUnique(string email, CancellationToken ct)
+    { var existing = await _repo.GetByFilterAsync(u => u.Email == email); return !existing.Any(); }
 }
 
 // -----------------------------------------------------------------------------

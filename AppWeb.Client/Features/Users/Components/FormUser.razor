@@ -5,10 +5,12 @@
     <MudText Typo="Typo.h6" Class="mb-2">Create User</MudText>
 
     <MudForm @ref="_form" Model="_model">
-        <MudTextField @bind-Value="_model.Username" Label="Username" Variant="Variant.Outlined" Required="true" RequiredError="Username is required" />
-        <MudTextField @bind-Value="_model.Email" Label="Email" Variant="Variant.Outlined" Required="true" RequiredError="Email is required" />
-        <MudTextField @bind-Value="_model.Password" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" Required="true" RequiredError="Password is required" />
-        <MudTextField @bind-Value="_model.ConfirmPassword" Label="Confirm Password" Variant="Variant.Outlined" InputType="InputType.Password" Required="true" RequiredError="Confirm Password" />
+        <FluentValidator TModel="CreateUserInput" Validator="_validator" />
+
+        <MudTextField @bind-Value="_model.Username" For="@(() => _model.Username)" Label="Username" Variant="Variant.Outlined" Immediate="true" />
+        <MudTextField @bind-Value="_model.Email" For="@(() => _model.Email)" Label="Email" Variant="Variant.Outlined" Immediate="true" />
+        <MudTextField @bind-Value="_model.Password" For="@(() => _model.Password)" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
+        <MudTextField @bind-Value="_model.ConfirmPassword" For="@(() => _model.ConfirmPassword)" Label="Confirm Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
     </MudForm>
 
     <MudDialogActions Class="mt-4">

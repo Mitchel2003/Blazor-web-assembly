@@ -8,7 +8,7 @@ namespace AppWeb.Application.Mapping;
 /// Mapster configuration for User aggregate.
 /// Uses conventions but explicit registration keeps intentions clear and allows future custom rules.
 /// </summary>
-public sealed class UserMappingRegister : IRegister
+public sealed class UserMapping : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

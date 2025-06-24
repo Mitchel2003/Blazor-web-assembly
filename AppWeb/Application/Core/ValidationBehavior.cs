@@ -1,7 +1,7 @@
 using FluentValidation;
 using MediatR;
 
-namespace AppWeb.Application.Common.Behaviors;
+namespace AppWeb.Application.Core;
 
 /// <summary>
 /// MediatR pipeline behavior that executes all FluentValidation validators associated
@@ -17,10 +17,7 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         if (_validators.Any())
         {
             var context = new ValidationContext<TRequest>(request);
-            var failures = (await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken))))
-                .SelectMany(r => r.Errors)
-                .Where(f => f != null)
-                .ToList();
+            var failures = (await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)))).SelectMany(r => r.Errors).Where(f => f != null).ToList();
             if (failures.Count != 0) throw new ValidationException(failures);
         }
         return await next();

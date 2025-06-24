@@ -1,4 +1,4 @@
-using AppWeb.Application.Handlers;
+using AppWeb.Application.Graphql.Handlers;
 using AppWeb.Shared.Dtos;
 using AppWeb.Models;
 using MediatR;

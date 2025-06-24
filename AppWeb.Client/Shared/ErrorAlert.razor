@@ -1,0 +1,16 @@
+@inject AppWeb.Client.Errors.ErrorNotifier Notifier
+@implements IDisposable
+
+@if (_message is not null)
+{
+    <MudAlert Severity="Severity.Error" Elevation="0" Variant="Variant.Filled" Class="mb-2">
+        @_message
+    </MudAlert>
+}
+
+@code {
+    private string? _message;
+    protected override void OnInitialized() { Notifier.ErrorRaised += HandleError; }
+    private void HandleError(string msg) { _message = msg; StateHasChanged(); }
+    public void Dispose() { Notifier.ErrorRaised -= HandleError; }
+}

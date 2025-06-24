@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace AppWeb.Application.Contracts.Persistence;
+namespace AppWeb.Application.Interfaces.Persistence;
 
 /// <summary> Generic repository abstraction for aggregate roots. </summary>
 public interface IRepository<TEntity> where TEntity : class, new()

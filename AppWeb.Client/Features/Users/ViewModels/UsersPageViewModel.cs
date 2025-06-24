@@ -27,13 +27,13 @@ public partial class UsersPageViewModel : ObservableObject
     public async Task HandleAddUser()
     {
         var dialog = await _dialogService.ShowAsync<FormUser>("Create User");
-        var result = await dialog.Result;
-
-        if (result != null && !result.Canceled && result.Data is CreateUserInput input)
-        {
+        var result = await dialog.Result; // Result is nullable, so we need to check for null
+        if (result is null || result.Canceled || result.Data is not CreateUserInput input) return;
+        try {
             var created = await _usersApi.CreateUserAsync(input);
             if (created is not null) { await LoadAsync(); _snackbar.Add("User created successfully", Severity.Success); }
-            else { _snackbar.Add("Failed to create user", Severity.Error); }
         }
+        catch (Errors.ApiException apiEx) { foreach (var err in apiEx.Errors) { _snackbar.Add(err, Severity.Error); } }
+        catch (Exception ex) { _snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error); }
     }
 }

@@ -1,10 +1,10 @@
-using AppWeb.Application.Contracts.Persistence.Repositories;
-using AppWeb.Application.Common.Core;
+using AppWeb.Application.Interfaces.Persistence;
+using AppWeb.Application.Core;
 using AppWeb.Shared.Dtos;
 using AppWeb.Models;
 using MediatR;
 
-namespace AppWeb.Application.Handlers;
+namespace AppWeb.Application.Graphql.Handlers;
 
 #region Queries ------------------------------------------------------------
 /** Implements the IRequestHandler interface for the GetUsers request. */

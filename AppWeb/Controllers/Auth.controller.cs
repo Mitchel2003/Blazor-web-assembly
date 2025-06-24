@@ -1,4 +1,4 @@
-using AppWeb.Application.Handlers;
+using AppWeb.Application.Graphql.Handlers;
 using Microsoft.AspNetCore.Mvc;
 using AppWeb.Shared.Inputs;
 using AppWeb.Shared.Dtos;

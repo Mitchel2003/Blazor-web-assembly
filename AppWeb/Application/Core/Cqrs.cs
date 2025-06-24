@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using MediatR;
 
-namespace AppWeb.Application.Common.Core;
+namespace AppWeb.Application.Core;
 
 /*
  * Generic CQRS primitives (Commands, Queries)

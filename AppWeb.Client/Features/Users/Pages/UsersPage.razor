@@ -6,8 +6,10 @@
 
 <MudText Typo="Typo.h5" Class="mb-4">Users</MudText>
 
-@if (vm.Users is null) { <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" /> }
-else if (vm.Users.Count == 0) { <p>No users found.</p> }
-else { <TableUser Users="vm.Users" OnAdd="vm.HandleAddUser" /> }
+@if (vm.Users is null) {
+    <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" />
+} else {
+    <TableUser Users="vm.Users" OnAdd="@vm.HandleAddUser" />
+}
 
 @code { protected override async Task OnInitializedAsync() { await vm.LoadAsync(); } }

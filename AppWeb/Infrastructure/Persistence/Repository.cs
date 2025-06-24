@@ -1,4 +1,4 @@
-using AppWeb.Application.Contracts.Persistence;
+using AppWeb.Application.Interfaces.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Mapster;
