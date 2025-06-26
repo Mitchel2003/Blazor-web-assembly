@@ -64,7 +64,7 @@ public sealed record GetUsers() : GetAllQuery<User>();
 public sealed record GetUserById(int Id) : GetByIdQuery<User>(Id);
 public sealed record GetUsersByEmail(string Email) : GetByFilterQuery<User>(p => p.Email == Email);
 
-public sealed record CreateUser(UserDto Input) : CreateCommand<UserDto, User>(Input);
-public sealed record UpdateUser(int Id, UserDto Input) : UpdateCommand<UserDto, User>(Id, Input);
+public sealed record CreateUser(UserDto dto) : CreateCommand<UserDto, User>(dto);
+public sealed record UpdateUser(int Id, UserDto dto) : UpdateCommand<UserDto, User>(Id, dto);
 public sealed record DeleteUser(int Id) : DeleteCommand<User>(Id);
 #endregion ---------------------------------------------------------------------

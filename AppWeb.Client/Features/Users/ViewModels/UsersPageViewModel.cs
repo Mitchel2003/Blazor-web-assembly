@@ -1,7 +1,7 @@
 using AppWeb.Client.Features.Users.Components;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.AspNetCore.Components;
 using AppWeb.Client.Services;
-using AppWeb.Shared.Inputs;
 using AppWeb.Shared.Dtos;
 using MudBlazor;
 
@@ -11,30 +11,49 @@ public partial class UsersPageViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
     private readonly IUsersApiClient _usersApi;
+    private readonly NavigationManager _nav;
     private readonly ISnackbar _snackbar;
 
     [ObservableProperty]
-    private IReadOnlyList<UserListDto>? users;
-    public UsersPageViewModel(IUsersApiClient usersApi, IDialogService dialogService, ISnackbar snackbar)
+    private IReadOnlyList<UserResultDto>? users;
+    public UsersPageViewModel(IUsersApiClient usersApi, IDialogService dialogService, ISnackbar snackbar, NavigationManager nav)
     {
         _usersApi = usersApi;
         _dialogService = dialogService;
         _snackbar = snackbar;
+        _nav = nav;
     }
 
     public async Task LoadAsync() { Users = await _usersApi.GetUsersAsync(); }
 
-    public async Task HandleAddUser()
+    public async Task HandleViewUser(UserResultDto user)
     {
-        var dialog = await _dialogService.ShowAsync<FormUser>("Create User");
-        var result = await dialog.Result; // Result can be nullable, so we need to check for null
-        if (result is null || result.Canceled || result.Data is not CreateUserInput input) return;
+        var parameters = new DialogParameters { ["Existing"] = user };
+        await _dialogService.ShowAsync<PreviewUser>($"User #{user.Id}", parameters);
+    }
+
+    public Task HandleAddUser()
+    {
+        _nav.NavigateTo("/users/create");
+        return Task.CompletedTask;
+    }
+
+    public Task HandleEditUser(UserResultDto user)
+    {
+        _nav.NavigateTo($"/users/edit/{user.Id}");
+        return Task.CompletedTask;
+    }
+
+    public async Task HandleDeleteUser(UserResultDto user)
+    {
+        bool? confirm = await _dialogService.ShowMessageBox("Confirm Delete", $"Delete user '{user.Username}'?", yesText: "Delete", cancelText: "Cancel", options: new DialogOptions { MaxWidth = MaxWidth.ExtraSmall });
+        if (confirm != true) return;
         try
-        { //catching any error throught exceptions API
-            var created = await _usersApi.CreateUserAsync(input);
-            if (created is not null) { await LoadAsync(); _snackbar.Add("User created successfully", Severity.Success); }
+        {
+            var success = await _usersApi.DeleteUserAsync(user.Id); // Call the API to delete the user
+            if (success is true) { await LoadAsync(); _snackbar.Add("User deleted", Severity.Info); }
         }
-        catch (Errors.ApiException apiEx) { foreach (var err in apiEx.Errors) { _snackbar.Add(err, Severity.Error); } }
+        catch (Errors.ApiException apiEx) { foreach (var err in apiEx.Errors) _snackbar.Add(err, Severity.Error); }
         catch (Exception ex) { _snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error); }
     }
 }

@@ -6,19 +6,22 @@
     <MudTable Items="FilteredUsers" Dense="true" Hover="true" Bordered="true" Striped="true" Elevation="0" RowsPerPage="10">
         <ToolBarContent>
             <MudText Typo="Typo.subtitle2">@($"Users ({FilteredUsers.Count()})")</MudText>
-            <MudSpacer />
-            <!-- Button create user (Form) -->
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OnAddClicked">Add</MudButton>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>Id</MudTh>
             <MudTh>Username</MudTh>
             <MudTh>Email</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate Context="user">
             <MudTd DataLabel="Id">@user.Id</MudTd>
             <MudTd DataLabel="Username">@user.Username</MudTd>
             <MudTd DataLabel="Email">@user.Email</MudTd>
+            <MudTd DataLabel="Actions" Class="d-flex justify-end">
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small" OnClick="@(() => ViewClicked(user))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" Size="Size.Small" OnClick="@(() => EditClicked(user))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteClicked(user))" />
+            </MudTd>
         </RowTemplate>
     </MudTable>
 </MudPaper>

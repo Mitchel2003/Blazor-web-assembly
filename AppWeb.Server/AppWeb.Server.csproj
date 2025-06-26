@@ -17,4 +17,8 @@
 	<ProjectReference Include="..\AppWeb.Infrastructure\AppWeb.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

@@ -47,7 +47,7 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
     public async Task<TEntity> UpdateAsync<TInput>(int id, TInput dto) where TInput : class
     {
         await using var db = await _context.CreateDbContextAsync();
-        var entity = await db.FindAsync<TEntity>(id) ?? throw new System.Collections.Generic.KeyNotFoundException("Entity not found");
+        var entity = await db.FindAsync<TEntity>(id) ?? throw new KeyNotFoundException("Entity not found");
         dto.Adapt(entity);
         db.Update(entity);
         await db.SaveChangesAsync();

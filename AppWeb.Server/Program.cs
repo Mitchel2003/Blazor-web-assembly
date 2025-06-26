@@ -24,7 +24,7 @@ else { app.UseExceptionHandler("/Error", createScopeForErrors: true); app.UseHst
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles(); //Static content for MVC & Blazor
+app.UseStaticFiles(); // Static content (wwwroot) first
 app.UseRouting(); //Routing middleware
 
 //Authentication

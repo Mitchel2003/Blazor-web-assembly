@@ -1,30 +1,60 @@
 using Microsoft.AspNetCore.Components;
+using AppWeb.Shared.Validators;
+using FluentValidation.Results;
 using AppWeb.Shared.Inputs;
+using AppWeb.Shared.Dtos;
+using FluentValidation;
 using MudBlazor;
 
 namespace AppWeb.Client.Features.Users.Components;
 
 public partial class FormUser : ComponentBase
 {
-    private readonly AppWeb.Shared.Validators.CreateUserInputValidator _validator = new();
-    [Parameter] public EventCallback<CreateUserInput> OnValidSubmit { get; set; }
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Parameter] public EventCallback<object> OnValidSubmit { get; set; }
+    [Parameter] public UserResultDto? Existing { get; set; }
+
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    private CreateUserInput _model = new();
+    private readonly CreateUserInputValidator _createValidator = new();
+    private readonly UpdateUserInputValidator _updateValidator = new();
+    private readonly CreateUserInput _createModel = new();
+    private readonly UpdateUserInput _updateModel = new();
     private MudForm _form = default!;
+    private bool _isEdit;
+
+    #region Context ------------------------------------------------------------
+    private IValidator CurrentValidator => _isEdit ? (IValidator)_updateValidator : _createValidator;
+    private object CurrentModel => _isEdit ? (object)_updateModel : _createModel;
+    #endregion ---------------------------------------------------------------------
 
     private void Cancel()
     {
-        if (MudDialog is not null) { MudDialog.Cancel(); }
-        else { Nav.NavigateTo("/users"); }
+        if (MudDialog is not null) MudDialog.Cancel();
+        else Nav.NavigateTo("/users");
+    }
+
+    protected override void OnInitialized()
+    {
+        _isEdit = Existing is not null;
+        if (_isEdit && Existing is not null)
+        {
+            _updateModel.Id = Existing.Id;
+            _updateModel.Email = Existing.Email;
+            _updateModel.Username = Existing.Username;
+            _updateModel.Password = Existing.Password;
+        }
     }
 
     private async Task SubmitAsync()
     {
         await _form.Validate();
-        var fvResult = _validator.Validate(_model);
-        if (!_form.IsValid || !fvResult.IsValid) return; //inline already shown
-        if (MudDialog is not null) { MudDialog.Close(DialogResult.Ok(_model)); }
-        else if (OnValidSubmit.HasDelegate) { await OnValidSubmit.InvokeAsync(_model); }
+        ValidationResult fvResult = _isEdit
+            ? _updateValidator.Validate(_updateModel)
+            : _createValidator.Validate(_createModel);
+        if (!_form.IsValid || !fvResult.IsValid) return;
+        object payload = _isEdit ? _updateModel : _createModel;
+        // Invoke the OnValidSubmit callback if it has delegates
+        if (MudDialog is not null) MudDialog.Close(DialogResult.Ok(payload));
+        else if (OnValidSubmit.HasDelegate) await OnValidSubmit.InvokeAsync(payload);
     }
 }

@@ -2,15 +2,21 @@
 @using MudBlazor
 
 <MudDialogContent Class="pa-4 min-width-300">
-    <MudText Typo="Typo.h6" Class="mb-2">Create User</MudText>
-
-    <MudForm @ref="_form" Model="_model">
-        <FluentValidator TModel="CreateUserInput" Validator="_validator" />
-
-        <MudTextField @bind-Value="_model.Username" For="@(() => _model.Username)" Label="Username" Variant="Variant.Outlined" Immediate="true" />
-        <MudTextField @bind-Value="_model.Email" For="@(() => _model.Email)" Label="Email" Variant="Variant.Outlined" Immediate="true" />
-        <MudTextField @bind-Value="_model.Password" For="@(() => _model.Password)" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
-        <MudTextField @bind-Value="_model.ConfirmPassword" For="@(() => _model.ConfirmPassword)" Label="Confirm Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
+    <MudForm @ref="_form" Model="@CurrentModel">
+        <FluentValidator TModel="object" Validator="@CurrentValidator" />
+        @if (_isEdit)
+        {
+            <MudTextField @bind-Value="_updateModel.Username" For="@(() => _updateModel.Username)" Label="Username" Variant="Variant.Outlined" Immediate="true" />
+            <MudTextField @bind-Value="_updateModel.Email" For="@(() => _updateModel.Email)" Label="Email" Variant="Variant.Outlined" Immediate="true" />
+            <MudTextField @bind-Value="_updateModel.Password" For="@(() => _updateModel.Password)" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
+        }
+        else
+        {
+            <MudTextField @bind-Value="_createModel.Username" For="@(() => _createModel.Username)" Label="Username" Variant="Variant.Outlined" Immediate="true" />
+            <MudTextField @bind-Value="_createModel.Email" For="@(() => _createModel.Email)" Label="Email" Variant="Variant.Outlined" Immediate="true" />
+            <MudTextField @bind-Value="_createModel.Password" For="@(() => _createModel.Password)" Label="Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
+            <MudTextField @bind-Value="_createModel.ConfirmPassword" For="@(() => _createModel.ConfirmPassword)" Label="Confirm Password" Variant="Variant.Outlined" InputType="InputType.Password" Immediate="true" />
+        }
     </MudForm>
 
     <MudDialogActions Class="mt-4">

@@ -1,0 +1,27 @@
+@using AppWeb.Shared.Dtos
+@using MudBlazor
+
+<MudDialogContent Class="pa-4 min-width-300">
+    <MudText Typo="Typo.h6" Class="mb-2">User Details</MudText>
+
+    @if (Existing is not null)
+    {
+        <MudList Dense="true" T="UserResultDto">
+            <MudListItem T="UserResultDto"><MudText Color="Color.Primary">ID:</MudText><MudSpacer /><MudText>@Existing.Id</MudText></MudListItem>
+            <MudDivider />
+            <MudListItem T="UserResultDto"><MudText Color="Color.Primary">Username:</MudText><MudSpacer /><MudText>@Existing.Username</MudText></MudListItem>
+            <MudDivider />
+            <MudListItem T="UserResultDto"><MudText Color="Color.Primary">Email:</MudText><MudSpacer /><MudText>@Existing.Email</MudText></MudListItem>
+        </MudList>
+    }
+
+    <MudDialogActions Class="mt-4">
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="Close">Close</MudButton>
+    </MudDialogActions>
+</MudDialogContent>
+
+@code {
+    [Parameter, EditorRequired] public UserResultDto Existing { get; set; } = default!;
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    private void Close() => MudDialog?.Close();
+}

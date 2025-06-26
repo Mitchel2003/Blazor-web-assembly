@@ -1,15 +1,30 @@
 @page "/users"
-@using AppWeb.Client.Features.Users.Components
+
 @inject AppWeb.Client.Features.Users.ViewModels.UsersPageViewModel vm
+@using AppWeb.Client.Features.Users.Components
+@using AppWeb.Client.Shared.Ui
 
 <PageTitle>Users</PageTitle>
 
-<MudText Typo="Typo.h5" Class="mb-4">Users</MudText>
+<PageHeader Title="Users" Description="Manage platform users">
+    <Actions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="vm.HandleAddUser">Add</MudButton>
+    </Actions>
+</PageHeader>
 
-@if (vm.Users is null) {
-    <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" />
-} else {
-    <TableUser Users="vm.Users" OnAdd="@vm.HandleAddUser" />
-}
+<SectionContainer Padding="@(SectionContainer.SectionPadding.Sm)">
+    @if (vm.Users is null)
+    {
+        <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" />
+    }
+    else
+    {
+        <TableUser Users="vm.Users"
+                   OnAdd="vm.HandleAddUser"
+                   OnView="vm.HandleViewUser"
+                   OnEdit="vm.HandleEditUser"
+                   OnDelete="vm.HandleDeleteUser" />
+    }
+</SectionContainer>
 
 @code { protected override async Task OnInitializedAsync() { await vm.LoadAsync(); } }
