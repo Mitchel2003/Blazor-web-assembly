@@ -5,10 +5,16 @@ using AppWeb.Application;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddMudServices(); //Add MudBlazor services
 
-builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents(); //Add support for Blazor WebAssembly components
-builder.Services.AddControllersWithViews(); //Controllers & Views (optional but keeps compatibility with cookie-auth views)
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true)
+    .AddUserSecrets<Program>() //Enables user-secrets
+    .AddEnvironmentVariables();
+
+builder.Services.AddMudServices(); //Add MudBlazor services
+builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
+builder.Services.AddControllersWithViews(); //keeps compatibility cookie-auth
 
 var apiBase = new Uri(builder.Configuration["ApiBase"] ?? "https://localhost:5001/"); //HTTP clients for prerendered components
 builder.Services.AddHttpClient<IUsersApiClient, UsersApiClient>(c => c.BaseAddress = apiBase); //suggested system more reusable

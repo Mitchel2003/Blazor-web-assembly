@@ -12,9 +12,9 @@ public partial class FormUser : ComponentBase
 {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
     [Parameter] public EventCallback<object> OnValidSubmit { get; set; }
+    [Inject] private NavigationManager Nav { get; set; } = default!;
     [Parameter] public UserResultDto? Existing { get; set; }
 
-    [Inject] private NavigationManager Nav { get; set; } = default!;
     private readonly CreateUserInputValidator _createValidator = new();
     private readonly UpdateUserInputValidator _updateValidator = new();
     private readonly CreateUserInput _createModel = new();

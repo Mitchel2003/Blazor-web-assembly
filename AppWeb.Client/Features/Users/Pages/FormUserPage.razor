@@ -1,0 +1,24 @@
+@page "/users/edit/{Id:int}"
+@page "/users/create"
+
+@inject AppWeb.Client.Features.Users.ViewModels.FormUserPageVM vm
+@using AppWeb.Client.Shared.Ui
+@using MudBlazor
+
+<PageHeader Title="@(vm.IsLoading ? "Loading…" : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")" Description="Fill in the form and save the user" />
+
+<SectionContainer Padding="@(SectionContainer.SectionPadding.Sm)">
+    @if (vm.IsLoading)
+    {
+        <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" />
+    }
+    else
+    {
+        <FormUser Existing="@vm.Existing" OnValidSubmit="vm.HandleValidSubmit" />
+    }
+</SectionContainer>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    protected override async Task OnInitializedAsync() { await vm.LoadAsync(Id); }
+}

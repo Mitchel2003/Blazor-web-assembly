@@ -28,3 +28,6 @@
 
 ## Compile tailwindcss
 `npx tailwindcss -i ./tailwind.input.css -o ./AppWeb.Client/wwwroot/css/app.css --minify`
+
+## Enviroment variables
+// "ConnectionStrings:DefaultConnection" "Server=tcp:something.database.windows.net,1433;Database=something;User ID=something;Password=something;"

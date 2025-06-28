@@ -8,7 +8,8 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddMudServices();
 
-builder.Services.AddScoped<AppWeb.Client.Features.Users.ViewModels.UsersPageViewModel>();
+builder.Services.AddScoped<AppWeb.Client.Features.Users.ViewModels.TableUserPageVM>();
+builder.Services.AddScoped<AppWeb.Client.Features.Users.ViewModels.FormUserPageVM>();
 builder.Services.AddScoped<AppWeb.Client.Errors.ErrorNotifier>();
 builder.Services.AddScoped<IUsersApiClient, UsersApiClient>();
 

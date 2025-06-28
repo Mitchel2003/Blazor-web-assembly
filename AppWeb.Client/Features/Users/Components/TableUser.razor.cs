@@ -7,8 +7,6 @@ public partial class TableUser : ComponentBase
 {
     /// <summary>Lista de usuarios a renderizar.</summary>
     [Parameter] public IReadOnlyList<UserResultDto> Users { get; set; } = new List<UserResultDto>();
-
-    /// <summary>Evento que se dispara cuando el botón "Add" es presionado.</summary>
     [Parameter] public EventCallback<UserResultDto> OnDelete { get; set; }
     [Parameter] public EventCallback<UserResultDto> OnEdit { get; set; }
     [Parameter] public EventCallback<UserResultDto> OnView { get; set; }

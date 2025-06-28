@@ -18,7 +18,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         //Connection string configuration
-        services.AddPooledDbContextFactory<AppDBContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("conection")));
+        services.AddPooledDbContextFactory<AppDBContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); //Generic repository registration
         services.AddAllRepositories(typeof(IUserRepository).Assembly, typeof(UserRepository).Assembly);
