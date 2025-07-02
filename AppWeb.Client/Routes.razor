@@ -1,6 +1,39 @@
-<Router AppAssembly="typeof(Program).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
-    </Found>
-</Router>
+@using Microsoft.AspNetCore.Components.Authorization
+@using AppWeb.Client.Auth
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            @{
+                var routePath = routeData.PageType.Name;
+
+                // Use AuthorizedLayout for all pages except auth pages
+                if (routeData.PageType.Namespace?.Contains("Features.Auth") == true)
+                {
+                    // For login page, use AuthGuard to redirect already authenticated users
+                    if (routePath.Contains("Login"))
+                    {
+                        <AuthGuard RedirectAuthenticatedFromLogin="true" DashboardPath="/">
+                            <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.MainLayout)" />
+                        </AuthGuard>
+                    }
+                    else
+                    { <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.MainLayout)" /> }
+                }
+                else if (routeData.PageType.Namespace?.Contains("Features.Users") == true)
+                { <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.MainLayout)" /> }
+                else { <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.AuthorizedLayout)" /> }
+            }
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(Shared.MainLayout)">
+                <div class="container mt-5 text-center">
+                    <h1 class="display-4">404 - Page Not Found</h1>
+                    <p class="lead">The page you requested could not be found.</p>
+                    <a href="/" class="btn btn-primary">Return to Home</a>
+                </div>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

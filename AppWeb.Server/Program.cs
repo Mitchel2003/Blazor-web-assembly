@@ -29,8 +29,7 @@ if (app.Environment.IsDevelopment()) { app.UseWebAssemblyDebugging(); }
 else { app.UseExceptionHandler("/Error", createScopeForErrors: true); app.UseHsts(); }
 
 app.UseHttpsRedirection();
-
-app.UseStaticFiles(); // Static content (wwwroot) first
+app.UseStaticFiles(); //Static content (wwwroot) first
 app.UseRouting(); //Routing middleware
 
 //Authentication
@@ -41,12 +40,14 @@ app.UseAuthorization();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
-// Razor Components (WASM+CSR)
+//Razor Components (WASM+CSR)
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(AppWeb.Client._Imports).Assembly);
 
-//GraphQL endpoint and conventional route mapping MVC (Auth, etc.)
-app.MapControllerRoute(name: "default", pattern: "{controller=Auth}/{action=Login}/{id?}");
-app.MapGraphQL("/graphql"); //GraphQL endpoint
+app.MapGraphQL("/graphql"); //GraphQL endpoint before conventional routes (give it priority)
+//Use a more specific pattern for the Auth controller to avoid conflicts with Blazor routes
+app.MapControllerRoute(name: "auth", pattern: "api/auth/{action=Login}/{id?}", defaults: new { controller = "Auth" });
+app.MapControllerRoute(name: "default", pattern: "api/{controller=Home}/{action=Index}/{id?}"); //Other conventional controller routes
+
 app.Run();

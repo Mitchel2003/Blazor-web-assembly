@@ -1,0 +1,47 @@
+@using MudBlazor
+
+@namespace AppWeb.Client.Shared.Ui.Skeletons
+
+<div class="flex items-center justify-center h-screen">
+    <MudPaper Elevation="0" Class="border rounded-lg p-8 w-80 space-y-5">
+        @if (ShowBrand)
+        {
+            <div class="flex justify-center">
+                <MudSkeleton Width="64px" Height="64px" Variant="Variant.Circular" Animation="Animation.Pulse" />
+            </div>
+        }
+
+        <MudSkeleton Height="32px" Width="60%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+
+        @for (int i = 0; i < FieldCount; i++)
+        { <MudSkeleton Height="48px" Width="100%" Animation="Animation.Pulse" Variant="Variant.Rect" /> }
+
+        <!-- Primary action button -->
+        <MudSkeleton Height="40px" Width="100%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+
+        @if (ShowSocial)
+        {
+            <div class="flex gap-2">
+                @for (int i = 0; i < 3; i++)
+                { <MudSkeleton Height="48px" Width="100%" Animation="Animation.Pulse" Variant="Variant.Rect" Class="flex-1" /> }
+            </div>
+        }
+    </MudPaper>
+</div>
+
+@code {
+    /// <summary>
+    /// Number of text/password inputs to simulate. Default = 2 (username & password).
+    /// </summary>
+    [Parameter] public int FieldCount { get; set; } = 2;
+
+    /// <summary>
+    /// Renders circular logo placeholder on top of the card.
+    /// </summary>
+    [Parameter] public bool ShowBrand { get; set; } = true;
+
+    /// <summary>
+    /// Renders social-login button placeholders below the primary action.
+    /// </summary>
+    [Parameter] public bool ShowSocial { get; set; } = false;
+}

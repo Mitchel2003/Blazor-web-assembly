@@ -2,21 +2,45 @@
 @page "/users/create"
 
 @inject AppWeb.Client.Features.Users.ViewModels.FormUserPageVM vm
+@using AppWeb.Client.Features.Users.Sections
 @using AppWeb.Client.Shared.Ui
 @using MudBlazor
 
-<PageHeader Title="@(vm.IsLoading ? "Loading…" : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")" Description="Fill in the form and save the user" />
+<PageTitle>@(vm.IsLoading ? "Loading..." : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")</PageTitle>
 
-<SectionContainer Padding="@(SectionContainer.SectionPadding.Sm)">
+<div class="page-user-form">
+    <section class="page-header mb-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold">
+                        @(vm.IsLoading ? "Loading..." : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")
+                    </h1>
+                    <p class="text-gray-500">Fill in the form and save the user</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="/users">
+                        Back to Users
+                    </MudButton>
+                </div>
+            </div>
+        </div>
+    </section>
+
     @if (vm.IsLoading)
     {
-        <MudProgressCircular Indeterminate Size="Size.Medium" Class="m-4" />
+        <div class="container mx-auto px-4 py-8 flex justify-center">
+            <MudProgressCircular Indeterminate Size="Size.Medium" />
+        </div>
     }
     else
     {
-        <FormUser Existing="@vm.Existing" OnValidSubmit="vm.HandleValidSubmit" />
+        <UserFormSection ExistingUser="@vm.Existing"
+                         OnSubmit="vm.HandleValidSubmit"
+                         Success="@vm.SaveSuccess"
+                         Loading="@vm.IsSaving" />
     }
-</SectionContainer>
+</div>
 
 @code {
     [Parameter] public int? Id { get; set; }

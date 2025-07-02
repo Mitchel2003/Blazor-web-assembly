@@ -6,7 +6,7 @@ using MediatR;
 namespace AppWeb.Application.Graphql.Cqrs;
 
 [ExtendObjectType("Mutation")]
-public class UserMutation
+public class UserCommand
 {
     /**
      * Create a new user
@@ -23,7 +23,7 @@ public class UserMutation
     public async Task<User> UpdateUser([Service] IMediator mediator, int id, UserDto dto) => await mediator.Send(new UpdateUser(id, dto));
 
     /**
-     * Soft delete by setting IsDeleted = true
+     * Soft delete by setting IsActive = false
      * If you want to hard delete, you can implement a different method
      */
     public async Task<bool> DeleteUser([Service] IMediator mediator, int id) => await mediator.Send(new DeleteUser(id));

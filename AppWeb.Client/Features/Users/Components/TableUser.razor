@@ -1,27 +1,109 @@
 @using AppWeb.Shared.Dtos
 @using MudBlazor
 
-<MudPaper Class="p-4">
-    <MudTextField @bind-Value="_searchString" Placeholder="Search…" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mb-4" />
-    <MudTable Items="FilteredUsers" Dense="true" Hover="true" Bordered="true" Striped="true" Elevation="0" RowsPerPage="10">
-        <ToolBarContent>
-            <MudText Typo="Typo.subtitle2">@($"Users ({FilteredUsers.Count()})")</MudText>
-        </ToolBarContent>
-        <HeaderContent>
-            <MudTh>Id</MudTh>
-            <MudTh>Username</MudTh>
-            <MudTh>Email</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate Context="user">
-            <MudTd DataLabel="Id">@user.Id</MudTd>
-            <MudTd DataLabel="Username">@user.Username</MudTd>
-            <MudTd DataLabel="Email">@user.Email</MudTd>
-            <MudTd DataLabel="Actions" Class="d-flex justify-end">
-                <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Primary" Size="Size.Small" OnClick="@(() => ViewClicked(user))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" Size="Size.Small" OnClick="@(() => EditClicked(user))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteClicked(user))" />
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-</MudPaper>
+<MudCard Class="rounded-lg overflow-hidden">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <div class="flex items-center">
+                <MudIcon Icon="@Icons.Material.Filled.People" Color="Color.Primary" Class="mr-3" />
+                <MudText Typo="Typo.h6">Users</MudText>
+            </div>
+        </CardHeaderContent>
+    </MudCardHeader>
+
+    <MudCardContent>
+        @if (Loading)
+        {
+            <div class="flex justify-center items-center min-h-[150px]">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+            </div>
+        }
+        else
+        {
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-3">
+                    <MudTextField @bind-Value="_searchString" Placeholder="Search users..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="flex-grow max-w-[300px]" IconSize="Size.Medium" Immediate="true" />
+
+                    <div class="flex gap-2">
+                        @if (_selectedItems.Count > 0)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" Size="Size.Small" OnClick="BulkDeleteClicked">
+                                Delete Selected (@_selectedItems.Count)
+                            </MudButton>
+                        }
+
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" Size="Size.Small" OnClick="RefreshData">
+                            Refresh
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="OnAddClicked">
+                            Add User
+                        </MudButton>
+                    </div>
+                </div>
+
+                <MudTable @bind-SelectedItems="_selectedItems"
+                          MultiSelection="true"
+                          Bordered="true"
+                          Striped="true"
+                          Dense="true"
+                          Hover="true"
+                          Elevation="0"
+                          RowsPerPage="10"
+                          T="UserResultDto"
+                          Loading="@Loading"
+                          Items="@FilteredUsers"
+                          LoadingProgressColor="Color.Primary"
+                          Class="overflow-hidden">
+                    <HeaderContent>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<UserResultDto, object>(x => x.Id)">ID</MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<UserResultDto, object>(x => x.Username)">Username</MudTableSortLabel>
+                        </MudTh>
+                        <MudTh>
+                            <MudTableSortLabel SortBy="new Func<UserResultDto, object>(x => x.Email)">Email</MudTableSortLabel>
+                        </MudTh>
+                        <MudTh class="text-right">Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Id">@context.Id</MudTd>
+                        <MudTd DataLabel="Username">
+                            <div class="flex items-center">
+                                <MudAvatar Size="Size.Small" Class="mr-2" Color="Color.Primary">
+                                    @(context.Username.Length > 0 ? context.Username[0].ToString().ToUpper() : "?")
+                                </MudAvatar>
+                                @context.Username
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd class="text-right">
+                            <div class="flex justify-end">
+                                <MudTooltip Text="View Details">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small" OnClick="@(() => ViewClicked(context))" />
+                                </MudTooltip>
+                                <MudTooltip Text="Edit User">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditClicked(context))" />
+                                </MudTooltip>
+                                <MudTooltip Text="Delete User">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteClicked(context))" />
+                                </MudTooltip>
+                            </div>
+                        </MudTd>
+                    </RowTemplate>
+                    <NoRecordsContent>
+                        <div class="flex flex-col items-center justify-center p-4">
+                            <MudIcon Icon="@Icons.Material.Filled.SentimentDissatisfied" Color="Color.Secondary" Size="Size.Large" />
+                            <MudText Class="mt-2">No users found</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">Try a different search or add a new user</MudText>
+                        </div>
+                    </NoRecordsContent>
+                    <PagerContent>
+                        <MudTablePager HorizontalAlignment="HorizontalAlignment.Right" InfoFormat="{first_item}-{last_item} of {all_items}" PageSizeOptions="new int[] { 5, 10, 25, 50, 100 }" />
+                    </PagerContent>
+                </MudTable>
+            </div>
+        }
+    </MudCardContent>
+</MudCard>

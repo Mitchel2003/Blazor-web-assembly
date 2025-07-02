@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppWeb.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250626202030_AzureMigration")]
-    partial class AzureMigration
+    [Migration("20250701213214_database-migration")]
+    partial class databasemigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,7 @@ namespace AppWeb.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Password")

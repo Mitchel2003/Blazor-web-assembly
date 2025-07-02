@@ -60,9 +60,9 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : class,
         var entity = await db.FindAsync<TEntity>(id);
         if (entity is null) return false;
 
-        // Soft delete if IsDeleted exists; otherwise hard delete
-        var prop = typeof(TEntity).GetProperty("IsDeleted", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
-        if (prop != null && prop.PropertyType == typeof(bool)) { prop.SetValue(entity, true); db.Update(entity); }
+        // Soft delete by setting IsActive to false if it exists; otherwise hard delete
+        var prop = typeof(TEntity).GetProperty("IsActive", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase);
+        if (prop != null && prop.PropertyType == typeof(bool)) { prop.SetValue(entity, false); db.Update(entity); }
         else { db.Remove(entity); }
         await db.SaveChangesAsync();
         return true;

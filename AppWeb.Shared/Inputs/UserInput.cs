@@ -23,6 +23,7 @@ public class CreateUserInput
     [Required(ErrorMessage = "Please confirm your password.")]
     [Compare("Password", ErrorMessage = "Passwords do not match.")]
     public string ConfirmPassword { get; set; } = string.Empty;
+    public bool IsActive { get; set; } = true;
 }
 
 /// <summary> Payload used when updating user existing <see cref="User"/>. </summary>
@@ -41,4 +42,5 @@ public class UpdateUserInput
     [MinLength(6)]
     [DataType(DataType.Password)]
     public string? Password { get; set; }
+    public bool IsActive { get; set; } = true;
 }

@@ -1,0 +1,49 @@
+@using MudBlazor
+
+@namespace AppWeb.Client.Shared.Ui.Skeletons
+
+<div class="space-y-6">
+    <!-- Page header skeleton -->
+    <MudSkeleton Height="32px" Width="35%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+    <MudSkeleton Height="20px" Width="50%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+
+    @if (ShowToolbar) { <MudSkeleton Height="40px" Width="100%" Animation="Animation.Pulse" Variant="Variant.Rect" /> }
+
+    <!-- Table skeleton -->
+    <MudPaper Elevation="0" Class="border rounded-lg overflow-hidden">
+        <!-- Table header row -->
+        <div class="grid @GetGridColumnsClass()">
+            @for (int c = 0; c < ColumnCount; c++)
+            { <MudSkeleton Height="24px" Animation="Animation.Pulse" Variant="Variant.Rect" Class="p-3" /> }
+        </div>
+        <MudDivider />
+        <!-- Table body rows -->
+        @for (int r = 0; r < RowCount; r++)
+        {
+            <div class="grid @GetGridColumnsClass()">
+                @for (int c = 0; c < ColumnCount; c++)
+                { <MudSkeleton Height="20px" Animation="Animation.Pulse" Variant="Variant.Rect" Class="p-3" /> }
+            </div>
+            <MudDivider />
+        }
+    </MudPaper>
+
+    @if (ShowPagination)
+    {
+        <div class="flex justify-end">
+            <MudSkeleton Height="36px" Width="240px" Animation="Animation.Pulse" Variant="Variant.Rect" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int RowCount { get; set; } = 10;
+    [Parameter] public int ColumnCount { get; set; } = 5;
+
+    /// <summary>Displays a toolbar skeleton above the table.</summary>
+    [Parameter] public bool ShowToolbar { get; set; } = true;
+    /// <summary>Displays pagination skeleton below the table.</summary>
+    [Parameter] public bool ShowPagination { get; set; } = true;
+
+    private string GetGridColumnsClass() => $"grid-cols-{ColumnCount}";
+}

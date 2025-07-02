@@ -1,0 +1,47 @@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public bool RequireAuthentication { get; set; } = false;
+
+    [Parameter]
+    public bool RedirectAuthenticatedFromLogin { get; set; } = false;
+
+    [Parameter]
+    public string ReturnUrl { get; set; } = "/";
+
+    [Parameter]
+    public string LoginPath { get; set; } = "/auth/login";
+
+    [Parameter]
+    public string DashboardPath { get; set; } = "/";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var isAuthenticated = user.Identity?.IsAuthenticated ?? false;
+
+        if (RequireAuthentication && !isAuthenticated)
+        {
+            // User not authenticated but trying to access protected route
+            var returnUrl = Uri.EscapeDataString(NavigationManager.Uri);
+            NavigationManager.NavigateTo($"{LoginPath}?returnUrl={returnUrl}");
+        }
+        else if (RedirectAuthenticatedFromLogin && isAuthenticated)
+        {
+            // User already authenticated but trying to access login page
+            NavigationManager.NavigateTo(DashboardPath);
+        }
+    }
+}
+
+@ChildContent 

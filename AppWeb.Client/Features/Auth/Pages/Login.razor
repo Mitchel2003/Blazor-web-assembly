@@ -1,0 +1,149 @@
+@page "/auth/login"
+
+@inject AppWeb.Client.Features.Auth.ViewModels.LoginPageVM vm
+@inject JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@using AppWeb.Shared.Inputs
+@using AppWeb.Client.Auth
+
+<div class="flex justify-center items-center min-h-[calc(100vh-64px)] p-8 bg-gradient-to-br from-surface to-background">
+    <div class="w-full max-w-md">
+        <MudCard Elevation="4" Class="rounded-xl overflow-hidden">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <div class="flex items-center">
+                        <MudIcon Icon="@Icons.Material.Filled.LockOpen" Color="Color.Primary" Class="mr-3" />
+                        <div>
+                            <MudText Typo="Typo.h6">Bienvenido</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">Inicie sesión con su cuenta</MudText>
+                        </div>
+                    </div>
+                </CardHeaderContent>
+            </MudCardHeader>
+
+            <MudCardContent>
+                @if (_loginSuccess)
+                {
+                    <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4">
+                        ¡Inicio de sesión exitoso! Redirigiendo...
+                    </MudAlert>
+                }
+
+                <MudForm @ref="_form" Model="@vm.Input">
+                    <div class="flex flex-col gap-4">
+                        <MudTextField T="string"
+                                      @bind-Value="vm.Input.Email"
+                                      Label="Email"
+                                      Placeholder="Ingrese su dirección de email"
+                                      Required="true"
+                                      ErrorText="El email es requerido"
+                                      Adornment="Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Email"
+                                      Immediate="true"
+                                      Variant="Variant.Outlined"
+                                      AutoFocus="true" />
+
+                        <div>
+                            <MudTextField T="string"
+                                          @bind-Value="vm.Input.Password"
+                                          Label="Contraseña"
+                                          Placeholder="Ingrese su contraseña"
+                                          Required="true"
+                                          ErrorText="La contraseña es requerida"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Lock"
+                                          InputType="@(_showPassword ? InputType.Text : InputType.Password)"
+                                          Immediate="true"
+                                          Variant="Variant.Outlined" />
+                            <div class="flex justify-end mt-1">
+                                <MudIconButton Icon="@(_showPassword? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
+                                               OnClick="ToggleShowPassword"
+                                               Size="Size.Small" />
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-2">
+                            <MudCheckBox T="bool" Label="Recordarme" Color="Color.Primary" Size="Size.Small" />
+                            <MudLink Href="#" Underline="Underline.Always">¿Olvidó su contraseña?</MudLink>
+                        </div>
+                    </div>
+                </MudForm>
+            </MudCardContent>
+
+            <MudCardActions Class="pb-4 px-4">
+                <div class="flex flex-col gap-3 w-full">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               Size="Size.Large"
+                               Disabled="@_isLoading"
+                               OnClick="@HandleLogin">
+                        @if (_isLoading)
+                        {
+                            <div class="flex items-center">
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+                                <span>Iniciando sesión...</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <span>Iniciar Sesión</span>
+                        }
+                    </MudButton>
+
+                    <div class="flex justify-center mt-2">
+                        <MudText Typo="Typo.body2">
+                            ¿No tiene una cuenta?
+                            <MudLink Href="/users/create" Underline="Underline.Always">Regístrese</MudLink>
+                        </MudText>
+                    </div>
+                </div>
+            </MudCardActions>
+        </MudCard>
+    </div>
+</div>
+
+@code {
+    private bool _isLoading = false;
+    private bool _loginSuccess = false;
+    private bool _showPassword = false;
+    private MudForm _form = new();
+    private string _returnUrl = "/";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if the user is already authenticated
+        if (await vm.ShouldRedirectAuthenticatedUserAsync())
+        { NavigationManager.NavigateTo("/"); return; }
+
+        // Get return URL from query string if present
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl))
+        { _returnUrl = returnUrl!; }
+    }
+
+    private void ToggleShowPassword() { _showPassword = !_showPassword; }
+
+    private async Task HandleLogin()
+    {
+        _isLoading = true;
+        try
+        {
+            await _form.Validate();
+            if (!_form.IsValid) { _isLoading = false; return; }
+
+            var success = await vm.HandleLogin(_returnUrl);
+            if (success)
+            {
+                _loginSuccess = true;
+                // No hacemos nada más, el ViewModel se encarga de la redirección
+            }
+        }
+        catch (Exception ex)
+        {
+            _loginSuccess = false;
+            Console.WriteLine($"Error en login: {ex}");
+        }
+        finally { _isLoading = false; }
+    }
+}

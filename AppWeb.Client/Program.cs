@@ -1,16 +1,9 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using AppWeb.Client.Services;
-using MudBlazor.Services;
+using AppWeb.Client; //using directive for extension methods
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-//Configure HttpClient pointing to server origin
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddMudServices();
-
-builder.Services.AddScoped<AppWeb.Client.Features.Users.ViewModels.TableUserPageVM>();
-builder.Services.AddScoped<AppWeb.Client.Features.Users.ViewModels.FormUserPageVM>();
-builder.Services.AddScoped<AppWeb.Client.Errors.ErrorNotifier>();
-builder.Services.AddScoped<IUsersApiClient, UsersApiClient>();
+// Register all client services & ViewModels via extension helper for maintainability
+builder.Services.AddClient(apiBase: new Uri(builder.HostEnvironment.BaseAddress));
 
 await builder.Build().RunAsync();

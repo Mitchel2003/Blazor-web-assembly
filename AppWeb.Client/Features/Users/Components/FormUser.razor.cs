@@ -19,7 +19,10 @@ public partial class FormUser : ComponentBase
     private readonly UpdateUserInputValidator _updateValidator = new();
     private readonly CreateUserInput _createModel = new();
     private readonly UpdateUserInput _updateModel = new();
+    private bool _isActive { get; set; } = false;
     private MudForm _form = default!;
+    private bool _success = false;
+    private bool _loading = false;
     private bool _isEdit;
 
     #region Context ------------------------------------------------------------
@@ -38,11 +41,13 @@ public partial class FormUser : ComponentBase
         _isEdit = Existing is not null;
         if (_isEdit && Existing is not null)
         {
+            _isActive = Existing.IsActive;
             _updateModel.Id = Existing.Id;
             _updateModel.Email = Existing.Email;
             _updateModel.Username = Existing.Username;
             _updateModel.Password = Existing.Password;
         }
+        else { _isActive = true; }
     }
 
     private async Task SubmitAsync()

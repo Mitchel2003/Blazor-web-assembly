@@ -1,25 +1,73 @@
 @inherits LayoutComponentBase
+@using MudBlazor.Utilities
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
+<MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
+    <MudAppBar Elevation="1" Fixed="true" Class="backdrop-blur-md transition-all duration-300">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
+        
+        <MudText Typo="Typo.h6" Class="ml-2 hidden sm:flex">Master Car</MudText>
+        
         <MudSpacer />
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle" />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        
+        <div class="flex items-center">
+            <MudTooltip Text="@(_isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode")">
+                <MudIconButton Icon="@DarkLightModeButtonIcon" Color="Color.Inherit" OnClick="@DarkModeToggle" />
+            </MudTooltip>
+            
+            <MudMenu Direction="Direction.Bottom" OffsetY="true" Dense="true" Class="ml-3">
+                <ActivatorContent>
+                    <MudAvatar Color="Color.Secondary" Size="Size.Medium">
+                        <MudIcon Icon="@Icons.Material.Filled.Person" />
+                    </MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudText Typo="Typo.body2" Class="px-4 py-2">John Doe</MudText>
+                    <MudDivider />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Person">Profile</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Settings">Settings</MudMenuItem>
+                    <MudMenuItem Icon="@Icons.Material.Filled.Logout">Logout</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </div>
     </MudAppBar>
-    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+    
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Mini" Class="transition-all duration-300 border-r border-divider">
+        <MudDrawerHeader Class="pb-2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6" Class="ml-1">
+                    @if (_drawerOpen)
+                    {
+                        <span>Master Car</span>
+                    }
+                    else
+                    {
+                        <span>MC</span>
+                    }
+                </MudText>
+                @if (_drawerOpen)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" Color="Color.Inherit" Edge="Edge.End" OnClick="@DrawerToggle" />
+                }
+            </MudStack>
+        </MudDrawerHeader>
+        
         <SidebarNav />
     </MudDrawer>
-    <MudMainContent Class="pt-16 pa-4">
-        <ErrorAlert />
+    
+    <MudMainContent Class="pt-16 px-4 pb-4">
+        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
         @Body
+        </MudContainer>
     </MudMainContent>
+    
+    <MudScrollToTop TopOffset="400" Class="mud-theme-primary">
+        <MudFab Color="Color.Primary" Icon="@Icons.Material.Filled.KeyboardArrowUp" Size="Size.Small" />
+    </MudScrollToTop>
 </MudLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -41,6 +89,11 @@
             PaletteLight = _lightPalette,
             PaletteDark = _darkPalette,
             LayoutProperties = new LayoutProperties()
+            {
+                DefaultBorderRadius = "8px",
+                DrawerWidthLeft = "260px",
+                DrawerMiniWidthLeft = "80px"
+            }
         };
     }
 
@@ -50,16 +103,29 @@
     private readonly PaletteLight _lightPalette = new()
     {
         Black = "#110e2d",
+        Primary = "#3f51b5",
+        PrimaryDarken = "#303f9f",
+        Secondary = "#ff4081",
+        SecondaryDarken = "#f50057",
+        Tertiary = "#1ec8a5",
         AppbarText = "#424242",
         AppbarBackground = "rgba(255,255,255,0.8)",
         DrawerBackground = "#ffffff",
         GrayLight = "#e8e8e8",
         GrayLighter = "#f9f9f9",
+        Info = "#2196f3",
+        Success = "#4caf50",
+        Warning = "#ff9800",
+        Error = "#f44336",
     };
 
     private readonly PaletteDark _darkPalette = new()
     {
         Primary = "#7e6fff",
+        PrimaryDarken = "#6a5fcc",
+        Secondary = "#ff4081",
+        SecondaryDarken = "#f50057",
+        Tertiary = "#1ec8a5",
         Surface = "#1e1e2d",
         Background = "#1a1a27",
         BackgroundGray = "#151521",
@@ -88,7 +154,7 @@
 
     public string DarkLightModeButtonIcon => _isDarkMode switch
     {
-        true => Icons.Material.Rounded.AutoMode,
+        true => Icons.Material.Rounded.LightMode,
         false => Icons.Material.Outlined.DarkMode,
     };
 }

@@ -1,0 +1,18 @@
+@using AppWeb.Client.Features.Users.Components
+@using AppWeb.Shared.Dtos
+@using MudBlazor
+
+<section class="user-form-section mb-8">
+    <div class="container mx-auto px-4">
+        <FormUser Existing="@ViewModel.Existing"
+                  OnValidSubmit="@OnSubmit"
+                  Loading="@ViewModel.IsLoading"
+                  Success="@ViewModel.SaveSuccess" />
+    </div>
+</section>
+
+@code {
+    [Parameter] public FormUserPageVM ViewModel { get; set; } = default!;
+    // Event handler to forward submission to the view model
+    private async Task OnSubmit(object payload) { await ViewModel.HandleValidSubmit(payload); }
+}

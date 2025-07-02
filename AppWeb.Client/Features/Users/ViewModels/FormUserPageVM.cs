@@ -18,7 +18,9 @@ public partial class FormUserPageVM : ObservableObject
     private readonly ISnackbar _snackbar;
 
     #region Observable ------------------------------------------------------------
+    [ObservableProperty] private bool saveSuccess = false;
     [ObservableProperty] private bool isLoading = true;
+    [ObservableProperty] private bool isSaving = false;
     [ObservableProperty] private UserResultDto? existing;
     #endregion ---------------------------------------------------------------------
 
@@ -34,28 +36,42 @@ public partial class FormUserPageVM : ObservableObject
     {
         Existing = null;
         IsLoading = true;
-        if (id is not null) { Existing = await _usersApi.GetUserByIdAsync(id.Value, ct); }
-        IsLoading = false;
+        SaveSuccess = false;
+        try
+        { if (id is not null) { Existing = await _usersApi.GetUserByIdAsync(id.Value, ct); } }
+        catch (Errors.ApiException apiEx) { foreach (var err in apiEx.Errors) _snackbar.Add(err, Severity.Error); }
+        catch (Exception ex) { _snackbar.Add($"Error loading user: {ex.Message}", Severity.Error); }
+        finally { IsLoading = false; }
     }
 
     /// <summary> Handles form submission coming from <see cref="Components.FormUser"/>. </summary>
     public async Task HandleValidSubmit(object payload)
     {
+        IsSaving = true;
+        SaveSuccess = false;
         try
         {
             if (payload is CreateUserInput create)
             {
-                var created = await _usersApi.CreateUserAsync(create);
-                if (created is not null) _snackbar.Add("User created successfully", Severity.Success);
+                var hasCreated = await _usersApi.CreateUserAsync(create);
+                if (hasCreated == null) { _snackbar.Add("User create failed", Severity.Error); return; }
+                _snackbar.Add("User created successfully", Severity.Success);
+                SaveSuccess = true;
+                await Task.Delay(1500);
+                _nav.NavigateTo("/users");
             }
             else if (payload is UpdateUserInput update)
             {
-                var updated = await _usersApi.UpdateUserAsync(update);
-                if (updated is not null) _snackbar.Add("User updated successfully", Severity.Success);
+                var hasUpdated = await _usersApi.UpdateUserAsync(update);
+                if (hasUpdated == null) { _snackbar.Add("User update failed", Severity.Error); return; }
+                _snackbar.Add("User updated successfully", Severity.Success);
+                SaveSuccess = true;
+                await Task.Delay(1500);
+                _nav.NavigateTo("/users");
             }
-            _nav.NavigateTo("/users");
         }
         catch (Errors.ApiException apiEx) { foreach (var err in apiEx.Errors) _snackbar.Add(err, Severity.Error); }
         catch (Exception ex) { _snackbar.Add($"Unexpected error: {ex.Message}", Severity.Error); }
+        finally { IsSaving = false; }
     }
 }

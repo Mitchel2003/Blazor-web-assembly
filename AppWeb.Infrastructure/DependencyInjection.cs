@@ -9,7 +9,9 @@ using AppWeb.Domain.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using AppWeb.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
+using AppWeb.Application.Security;
 
 namespace AppWeb.Infrastructure;
 
@@ -19,6 +21,10 @@ public static class DependencyInjection
     {
         //Connection string configuration
         services.AddPooledDbContextFactory<AppDBContext>(opt => opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        //Security helpers
+        services.AddSingleton<Microsoft.AspNetCore.Identity.IPasswordHasher<string>, Microsoft.AspNetCore.Identity.PasswordHasher<string>>();
+        services.AddSingleton<IJwtGenerator, JwtGenerator>();
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); //Generic repository registration
         services.AddAllRepositories(typeof(IUserRepository).Assembly, typeof(UserRepository).Assembly);
@@ -36,7 +42,7 @@ public static class DependencyInjection
                 .AddMutationType(d => d.Name("Mutation"))
                 .AddAllModelTypes(typeof(User).Assembly, "AppWeb.Domain.Models")
                 .AddAllExtensions(typeof(UserQuery).Assembly, "AppWeb.Application.Graphql.Cqrs")
-                .AddAllExtensions(typeof(UserMutation).Assembly, "AppWeb.Application.Graphql.Cqrs")
+                .AddAllExtensions(typeof(UserCommand).Assembly, "AppWeb.Application.Graphql.Cqrs")
                 .AddProjections().AddFiltering().AddSorting()
                 .AddErrorFilter<ValidationExceptionFilter>()
                 .InitializeOnStartup();

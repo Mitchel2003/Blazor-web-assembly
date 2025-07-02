@@ -1,0 +1,39 @@
+@using MudBlazor
+
+@namespace AppWeb.Client.Shared.Ui.Skeletons
+
+<MudPaper Elevation="0" Class="border rounded-lg p-6 space-y-6 w-full">
+    <!-- Title -->
+    <MudSkeleton Height="28px" Width="40%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+    <MudSkeleton Height="20px" Width="60%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+
+    <MudGrid Class="gap-6" >
+        @for (int i = 0; i < FieldCount; i++)
+        {
+            <MudItem xs="12" sm="6">
+                <MudSkeleton Height="18px" Width="40%" Animation="Animation.Pulse" Variant="Variant.Rect" />
+                <MudSkeleton Height="48px" Width="100%" Animation="Animation.Pulse" Variant="Variant.Rect" Class="mt-2" />
+            </MudItem>
+        }
+    </MudGrid>
+
+    @if (HasToolbar)
+    {
+        <div class="flex gap-4 justify-end">
+            <MudSkeleton Height="40px" Width="96px" Animation="Animation.Pulse" Variant="Variant.Rect" />
+            <MudSkeleton Height="40px" Width="128px" Animation="Animation.Pulse" Variant="Variant.Rect" />
+        </div>
+    }
+</MudPaper>
+
+@code {
+    /// <summary>
+    /// Number of input fields rendered (label + input). Default = 4.
+    /// </summary>
+    [Parameter] public int FieldCount { get; set; } = 4;
+
+    /// <summary>
+    /// Shows secondary action buttons area.
+    /// </summary>
+    [Parameter] public bool HasToolbar { get; set; } = true;
+}

@@ -1,0 +1,25 @@
+@using AppWeb.Shared.Dtos
+
+<section class="user-table-section mb-8">
+    <div class="container mx-auto px-4">
+        <TableUser Users="@Users"
+                   OnAdd="@OnAdd"
+                   OnView="@OnView"
+                   OnEdit="@OnEdit"
+                   Loading="@Loading"
+                   OnDelete="@OnDelete"
+                   OnRefresh="@OnRefresh"
+                   OnBulkDelete="@OnBulkDelete" />
+    </div>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<UserResultDto> Users { get; set; } = Array.Empty<UserResultDto>();
+    [Parameter] public EventCallback<List<UserResultDto>> OnBulkDelete { get; set; }
+    [Parameter] public EventCallback<UserResultDto> OnDelete { get; set; }
+    [Parameter] public EventCallback<UserResultDto> OnEdit { get; set; }
+    [Parameter] public EventCallback<UserResultDto> OnView { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public bool Loading { get; set; }
+}
