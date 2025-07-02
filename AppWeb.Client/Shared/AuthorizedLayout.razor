@@ -1,11 +1,12 @@
 @using Microsoft.AspNetCore.Components.Authorization
+@using AppWeb.Client.Auth
+
 @inject JwtAuthStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 @inherits LayoutComponentBase
-@using AppWeb.Client.Auth
 
-<CascadingAuthenticationState>
-    <AuthGuard RequireAuthentication="true" LoginPath="/auth/login">
+<AuthorizeView>
+    <Authorized>
         <MudLayout>
             <MudAppBar Elevation="0">
                 <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
@@ -25,8 +26,17 @@
                 </MudContainer>
             </MudMainContent>
         </MudLayout>
-    </AuthGuard>
-</CascadingAuthenticationState>
+    </Authorized>
+    <NotAuthorized>
+        <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center" Style="height: 100vh;">
+            <MudPaper Elevation="3" Class="pa-8 ma-2">
+                <MudText Typo="Typo.h5" Class="mb-4">Not Authorized</MudText>
+                <MudText>You need to be logged in to access this page.</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/auth/login" Class="mt-4">Login</MudButton>
+            </MudPaper>
+        </MudContainer>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private bool _drawerOpen = true;
@@ -38,4 +48,4 @@
         await AuthStateProvider.SetToken(null);
         NavigationManager.NavigateTo("/auth/login");
     }
-} 
+}

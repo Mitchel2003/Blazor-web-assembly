@@ -4,16 +4,19 @@
 @using FluentValidation
 @using MudBlazor
 
+@inject FormUserVM ViewModel
+@implements IDisposable
+
 <MudCard Class="rounded-lg overflow-hidden">
     <MudCardHeader>
         <div class="flex items-center">
-            <MudIcon Icon="@(_isEdit? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" Class="mr-2" />
-            <MudText Typo="Typo.h6">@(_isEdit ? "Edit User" : "Create User")</MudText>
+            <MudIcon Icon="@(ViewModel.IsEdit? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" Class="mr-2" />
+            <MudText Typo="Typo.h6">@(ViewModel.IsEdit ? "Edit User" : "Create User")</MudText>
         </div>
     </MudCardHeader>
 
     <MudCardContent Class="pa-4 min-width-300">
-        @if (_loading)
+        @if (ViewModel.Loading)
         {
             <div class="flex justify-center items-center min-h-[150px]">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
@@ -21,15 +24,15 @@
         }
         else
         {
-            @if (_success)
+            @if (ViewModel.Success)
             {
                 <MudAlert Severity="MudBlazor.Severity.Success" Variant="Variant.Filled" Class="mb-4">
-                    @(_isEdit ? "User updated successfully!" : "User created successfully!")
+                    @(ViewModel.IsEdit ? "User updated successfully!" : "User created successfully!")
                 </MudAlert>
             }
 
-            <MudForm @ref="_form" Model="@CurrentModel">
-                <FluentValidator TModel="object" Validator="CurrentValidator" />
+            <MudForm @ref="_form" Model="@ViewModel.CurrentModel">
+                <FluentValidator TModel="object" Validator="@ViewModel.CurrentValidator" />
 
                 <div class="flex flex-col gap-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -38,31 +41,31 @@
                             <MudDivider Class="mb-4" />
                         </div>
 
-                        @if (_isEdit)
+                        @if (ViewModel.IsEdit)
                         {
                             <div>
-                                <MudTextField T="string" @bind-Value="_updateModel.Username" For="@(() => _updateModel.Username)" Label="Username" Placeholder="Enter username" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.UpdateModel.Username" For="@(() => ViewModel.UpdateModel.Username)" Label="Username" Placeholder="Enter username" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Variant="Variant.Outlined" />
                             </div>
                             <div>
-                                <MudTextField T="string" @bind-Value="_updateModel.Email" For="@(() => _updateModel.Email)" Label="Email" Placeholder="Enter email address" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Email" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.UpdateModel.Email" For="@(() => ViewModel.UpdateModel.Email)" Label="Email" Placeholder="Enter email address" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Email" Variant="Variant.Outlined" />
                             </div>
                             <div>
-                                <MudTextField T="string" @bind-Value="_updateModel.Password" For="@(() => _updateModel.Password)" InputType="InputType.Password" Label="Password" Placeholder="Enter password" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Password" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.UpdateModel.Password" For="@(() => ViewModel.UpdateModel.Password)" InputType="InputType.Password" Label="Password" Placeholder="Enter password" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Password" Variant="Variant.Outlined" />
                             </div>
                         }
                         else
                         {
                             <div>
-                                <MudTextField T="string" @bind-Value="_createModel.Username" For="@(() => _createModel.Username)" Label="Username" Placeholder="Enter username" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.CreateModel.Username" For="@(() => ViewModel.CreateModel.Username)" Label="Username" Placeholder="Enter username" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Variant="Variant.Outlined" />
                             </div>
                             <div>
-                                <MudTextField T="string" @bind-Value="_createModel.Email" For="@(() => _createModel.Email)" Label="Email" Placeholder="Enter email address" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Email" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.CreateModel.Email" For="@(() => ViewModel.CreateModel.Email)" Label="Email" Placeholder="Enter email address" Immediate="true" AdornmentIcon="@Icons.Material.Filled.Email" Variant="Variant.Outlined" />
                             </div>
                             <div>
-                                <MudTextField T="string" @bind-Value="_createModel.Password" For="@(() => _createModel.Password)" InputType="InputType.Password" Label="Password" Placeholder="Enter password" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Password" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.CreateModel.Password" For="@(() => ViewModel.CreateModel.Password)" InputType="InputType.Password" Label="Password" Placeholder="Enter password" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Password" Variant="Variant.Outlined" />
                             </div>
                             <div>
-                                <MudTextField T="string" @bind-Value="_createModel.ConfirmPassword" For="@(() => _createModel.ConfirmPassword)" InputType="InputType.Password" Label="Confirm password" Placeholder="Enter password" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LockReset" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="ViewModel.CreateModel.ConfirmPassword" For="@(() => ViewModel.CreateModel.ConfirmPassword)" InputType="InputType.Password" Label="Confirm password" Placeholder="Enter password" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.LockReset" Variant="Variant.Outlined" />
                             </div>
                         }
                     </div>
@@ -74,7 +77,7 @@
                         </div>
 
                         <div>
-                            <MudCheckBox T="bool" @bind-Value="_isActive" Label="Active Account" Color="Color.Primary" />
+                            <MudCheckBox T="bool" @bind-Value="ViewModel.IsActive" Label="Active Account" Color="Color.Primary" />
                             <MudText Typo="Typo.caption" Color="Color.Secondary" Class="ml-4">
                                 User will be able to log in and access the system
                             </MudText>
@@ -88,15 +91,32 @@
     <MudCardActions>
         <MudSpacer />
         <MudButton Variant="Variant.Outlined"
-                   OnClick="Cancel"
-                   Disabled="@_loading">
+                   OnClick="@(() => ViewModel.CancelCommand.Execute(null))"
+                   Disabled="@ViewModel.Loading">
             Cancel
         </MudButton>
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
-                   OnClick="SubmitAsync"
-                   Disabled="@_loading">
-            @(_isEdit ? "Update User" : "Create User")
+                   OnClick="@HandleSubmitAsync"
+                   Disabled="@ViewModel.Loading">
+            @(ViewModel.IsEdit ? "Update User" : "Create User")
         </MudButton>
     </MudCardActions>
 </MudCard>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Parameter] public EventCallback<object> OnValidSubmit { get; set; }
+    [Parameter] public UserResultDto? Existing { get; set; }
+    private MudForm _form = new();
+
+    protected override void OnInitialized()
+    { //Pass parameters to the ViewModel
+        ViewModel.MudDialog = MudDialog;
+        ViewModel.OnValidSubmit = OnValidSubmit;
+        ViewModel.Initialize(Existing);
+    }
+
+    private async Task HandleSubmitAsync() { await ViewModel.SubmitCommand.ExecuteAsync(_form); }
+    public void Dispose() { } // Implement IDisposable to clean up resources if needed
+}

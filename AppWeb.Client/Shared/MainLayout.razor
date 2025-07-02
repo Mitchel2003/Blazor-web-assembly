@@ -1,80 +1,86 @@
-@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor.Utilities
+@using AppWeb.Client.Auth
 
-<MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+@inject JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inherits LayoutComponentBase
 
-<MudLayout>
-    <MudAppBar Elevation="1" Fixed="true" Class="backdrop-blur-md transition-all duration-300">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggle" />
-        
-        <MudText Typo="Typo.h6" Class="ml-2 hidden sm:flex">Master Car</MudText>
-        
-        <MudSpacer />
-        
-        <div class="flex items-center">
-            <MudTooltip Text="@(_isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode")">
-                <MudIconButton Icon="@DarkLightModeButtonIcon" Color="Color.Inherit" OnClick="@DarkModeToggle" />
-            </MudTooltip>
+<CascadingAuthenticationState>
+    <MudThemeProvider Theme="@_theme" IsDarkMode="@_isDarkMode" />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    <MudLayout>
+        <MudAppBar Elevation="1" Fixed="true" Class="backdrop-blur-md transition-all duration-300">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
             
-            <MudMenu Direction="Direction.Bottom" OffsetY="true" Dense="true" Class="ml-3">
-                <ActivatorContent>
-                    <MudAvatar Color="Color.Secondary" Size="Size.Medium">
-                        <MudIcon Icon="@Icons.Material.Filled.Person" />
-                    </MudAvatar>
-                </ActivatorContent>
-                <ChildContent>
-                    <MudText Typo="Typo.body2" Class="px-4 py-2">John Doe</MudText>
-                    <MudDivider />
-                    <MudMenuItem Icon="@Icons.Material.Filled.Person">Profile</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Settings">Settings</MudMenuItem>
-                    <MudMenuItem Icon="@Icons.Material.Filled.Logout">Logout</MudMenuItem>
-                </ChildContent>
-            </MudMenu>
-        </div>
-    </MudAppBar>
-    
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Mini" Class="transition-all duration-300 border-r border-divider">
-        <MudDrawerHeader Class="pb-2">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.h6" Class="ml-1">
-                    @if (_drawerOpen)
-                    {
-                        <span>Master Car</span>
-                    }
-                    else
-                    {
-                        <span>MC</span>
-                    }
-                </MudText>
-                @if (_drawerOpen)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" Color="Color.Inherit" Edge="Edge.End" OnClick="@DrawerToggle" />
-                }
-            </MudStack>
-        </MudDrawerHeader>
+            <MudText Typo="Typo.h6" Class="ml-2 hidden sm:flex">Master Car</MudText>
+            
+            <MudSpacer />
+            
+            <div class="flex items-center">
+                <MudTooltip Text="@(_isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode")">
+                    <MudIconButton Icon="@DarkLightModeButtonIcon" Color="Color.Inherit" OnClick="@ToggleDarkMode" />
+                </MudTooltip>
+                
+                <AuthorizeView>
+                    <Authorized>
+                        <MudMenu Direction="Direction.Bottom" OffsetY="true" Dense="true" Class="ml-3">
+                            <ActivatorContent>
+                                <MudAvatar Color="Color.Secondary" Size="Size.Medium">
+                                    <MudIcon Icon="@Icons.Material.Filled.Person" />
+                                </MudAvatar>
+                            </ActivatorContent>
+                            <ChildContent>
+                                <MudText Typo="Typo.body2" Class="px-4 py-2">@context.User?.Identity?.Name ?? "User"</MudText>
+                                <MudDivider />
+                                <MudMenuItem Icon="@Icons.Material.Filled.Person" Href="/account/profile">Profile</MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.Settings" Href="/account/settings">Settings</MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="HandleLogout">Logout</MudMenuItem>
+                            </ChildContent>
+                        </MudMenu>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" Href="/auth/login" Class="ml-3">Login</MudButton>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </MudAppBar>
         
-        <SidebarNav />
-    </MudDrawer>
-    
-    <MudMainContent Class="pt-16 px-4 pb-4">
-        <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
-        @Body
-        </MudContainer>
-    </MudMainContent>
-    
-    <MudScrollToTop TopOffset="400" Class="mud-theme-primary">
-        <MudFab Color="Color.Primary" Icon="@Icons.Material.Filled.KeyboardArrowUp" Size="Size.Small" />
-    </MudScrollToTop>
-</MudLayout>
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Mini" Class="transition-all duration-300 border-r border-divider">
+            <MudDrawerHeader Class="pb-2">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudText Typo="Typo.h6" Class="ml-1">
+                        @if (_drawerOpen) { <span>Master Car</span> }
+                        else { <span>MC</span> }
+                    </MudText>
+                    @if (_drawerOpen)
+                    { <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" Color="Color.Inherit" Edge="Edge.End" OnClick="@ToggleDrawer" /> }
+                </MudStack>
+            </MudDrawerHeader>
+            
+            <SidebarNav />
+        </MudDrawer>
+        
+        <MudMainContent Class="pt-16 px-4 pb-4">
+            <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+            @Body
+            </MudContainer>
+        </MudMainContent>
+        
+        <MudScrollToTop TopOffset="400" Class="mud-theme-primary">
+            <MudFab Color="Color.Primary" Icon="@Icons.Material.Filled.KeyboardArrowUp" Size="Size.Small" />
+        </MudScrollToTop>
+    </MudLayout>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
+    <div id="blazor-error-ui" data-nosnippet>
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+</CascadingAuthenticationState>
 
 @code {
     private bool _drawerOpen = true;
@@ -97,8 +103,14 @@
         };
     }
 
-    private void DrawerToggle() { _drawerOpen = !_drawerOpen; }
-    private void DarkModeToggle() { _isDarkMode = !_isDarkMode; }
+    private void ToggleDrawer() { _drawerOpen = !_drawerOpen; }
+    private void ToggleDarkMode() { _isDarkMode = !_isDarkMode; }
+    
+    private async Task HandleLogout()
+    {
+        await AuthStateProvider.SetToken(null);
+        NavigationManager.NavigateTo("/auth/login");
+    }
 
     private readonly PaletteLight _lightPalette = new()
     {

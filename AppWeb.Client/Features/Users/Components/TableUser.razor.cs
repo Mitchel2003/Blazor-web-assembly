@@ -1,52 +1,59 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.AspNetCore.Components;
+using CommunityToolkit.Mvvm.Input;
 using AppWeb.Client.Services;
 using AppWeb.Shared.Dtos;
 using MudBlazor;
 
 namespace AppWeb.Client.Features.Users.Components;
 
-public partial class TableUser : ComponentBase
+public partial class TableUserVM : ObservableObject
 {
-    [Inject] private IDialogService DialogService { get; set; } = default!;
-    [Inject] private IUsersApiClient UsersApiClient { get; set; } = default!;
-    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [ObservableProperty] private IReadOnlyList<UserResultDto> _users = Array.Empty<UserResultDto>();
+    [ObservableProperty] private HashSet<UserResultDto> _selectedItems = new();
+    [ObservableProperty] private string _searchString = string.Empty;
+    [ObservableProperty] private bool _loading;
 
-    [Parameter] public IReadOnlyList<UserResultDto> Users { get; set; } = Array.Empty<UserResultDto>();
-    [Parameter] public EventCallback<List<UserResultDto>> OnBulkDelete { get; set; }
-    [Parameter] public EventCallback<UserResultDto> OnDelete { get; set; }
-    [Parameter] public EventCallback<UserResultDto> OnEdit { get; set; }
-    [Parameter] public EventCallback<UserResultDto> OnView { get; set; }
-    [Parameter] public EventCallback OnRefresh { get; set; }
-    [Parameter] public EventCallback OnAdd { get; set; }
-    [Parameter] public bool Loading { get; set; }
+    public EventCallback<List<UserResultDto>> OnBulkDelete;
+    public EventCallback<UserResultDto> OnDelete;
+    public EventCallback<UserResultDto> OnEdit;
+    public EventCallback<UserResultDto> OnView;
+    public EventCallback OnRefresh;
+    public EventCallback OnAdd;
 
-    private HashSet<UserResultDto> _selectedItems = new();
-    private string _searchString = string.Empty;
+    private readonly IUsersApiClient _usersApiClient;
+    private readonly IDialogService _dialogService;
+    private readonly ISnackbar _snackbar;
+
+    public TableUserVM(IDialogService dialogService, IUsersApiClient usersApiClient, ISnackbar snackbar)
+    {
+        _dialogService = dialogService;
+        _usersApiClient = usersApiClient;
+        _snackbar = snackbar;
+    }
 
     /// <summary>Lista filtrada según el texto de búsqueda.</summary>
-    protected IEnumerable<UserResultDto> FilteredUsers => string.IsNullOrWhiteSpace(_searchString)
+    public IEnumerable<UserResultDto> FilteredUsers => string.IsNullOrWhiteSpace(SearchString)
         ? Users : Users.Where(u =>
-            (u.Username?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-            || (u.Email?.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ?? false));
+            (u.Username?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (u.Email?.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ?? false));
 
-    protected override async Task OnInitializedAsync()
-    { await base.OnInitializedAsync(); }
+    [RelayCommand]
+    public void Add() => OnAdd.InvokeAsync();
 
-    private void OnAddClicked()
-    { OnAdd.InvokeAsync(); }
+    [RelayCommand]
+    public void Edit(UserResultDto user) => OnEdit.InvokeAsync(user);
 
-    private void EditClicked(UserResultDto user)
-    { OnEdit.InvokeAsync(user); }
+    [RelayCommand]
+    public void Delete(UserResultDto user) => OnDelete.InvokeAsync(user);
 
-    private void DeleteClicked(UserResultDto user)
-    { OnDelete.InvokeAsync(user); }
+    [RelayCommand]
+    public void View(UserResultDto user) => OnView.InvokeAsync(user);
 
-    private void ViewClicked(UserResultDto user)
-    { OnView.InvokeAsync(user); }
+    [RelayCommand]
+    public void Refresh() => OnRefresh.InvokeAsync();
 
-    private void RefreshData()
-    { OnRefresh.InvokeAsync(); }
-
-    private void BulkDeleteClicked()
-    { if (_selectedItems.Count > 0) { OnBulkDelete.InvokeAsync(_selectedItems.ToList()); } }
+    [RelayCommand]
+    public void BulkDelete()
+    { if (SelectedItems.Count > 0) { OnBulkDelete.InvokeAsync(SelectedItems.ToList()); } }
 }

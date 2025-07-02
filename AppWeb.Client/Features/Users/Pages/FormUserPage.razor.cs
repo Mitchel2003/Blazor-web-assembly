@@ -1,11 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.AspNetCore.Components;
 using AppWeb.Client.Services;
 using AppWeb.Shared.Inputs;
 using AppWeb.Shared.Dtos;
 using MudBlazor;
 
-namespace AppWeb.Client.Features.Users.ViewModels;
+namespace AppWeb.Client.Features.Users.Pages;
 
 /// <summary>
 /// View-model for FormUserPage. Encapsulates UI state and orchestrates

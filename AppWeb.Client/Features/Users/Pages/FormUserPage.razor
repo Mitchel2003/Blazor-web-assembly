@@ -1,9 +1,9 @@
 @page "/users/edit/{Id:int}"
 @page "/users/create"
 
-@inject AppWeb.Client.Features.Users.ViewModels.FormUserPageVM vm
 @using AppWeb.Client.Features.Users.Sections
 @using AppWeb.Client.Shared.Ui
+@inject FormUserPageVM vm
 @using MudBlazor
 
 <PageTitle>@(vm.IsLoading ? "Loading..." : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")</PageTitle>
@@ -35,10 +35,7 @@
     }
     else
     {
-        <UserFormSection ExistingUser="@vm.Existing"
-                         OnSubmit="vm.HandleValidSubmit"
-                         Success="@vm.SaveSuccess"
-                         Loading="@vm.IsSaving" />
+        <UserFormSection ExistingUser="@vm.Existing" OnSubmit="vm.HandleValidSubmit" Success="@vm.SaveSuccess" Loading="@vm.IsSaving" />
     }
 </div>
 

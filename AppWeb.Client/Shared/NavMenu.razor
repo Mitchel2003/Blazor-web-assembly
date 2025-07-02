@@ -1,15 +1,14 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using AppWeb.Client.Auth
-@inject NavigationManager NavigationManager
+
 @inject JwtAuthStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 
 <MudNavMenu>
-    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-    
-    <MudNavLink Href="users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Users</MudNavLink>
-    
     <AuthorizeView>
         <Authorized>
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">Users</MudNavLink>
             <MudNavGroup Title="Account" Icon="@Icons.Material.Filled.AccountCircle" Expanded="false">
                 <MudNavLink Href="account/profile" Icon="@Icons.Material.Filled.Person">Profile</MudNavLink>
                 <MudNavLink Href="account/settings" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
@@ -28,4 +27,4 @@
         await AuthStateProvider.SetToken(null);
         NavigationManager.NavigateTo("/auth/login");
     }
-} 
+}

@@ -1,8 +1,11 @@
+@attribute [Authorize]
 @page "/users"
 
-@inject AppWeb.Client.Features.Users.ViewModels.TableUserPageVM vm
+@using Microsoft.AspNetCore.Components.Authorization
 @using AppWeb.Client.Features.Users.Sections
+@using Microsoft.AspNetCore.Authorization
 @using AppWeb.Client.Shared.Ui.Skeletons
+@inject TableUserPageVM vm
 
 <PageTitle>Users</PageTitle>
 

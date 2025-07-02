@@ -1,10 +1,12 @@
 @page "/auth/login"
 
-@inject AppWeb.Client.Features.Auth.ViewModels.LoginPageVM vm
-@inject JwtAuthStateProvider AuthStateProvider
-@inject NavigationManager NavigationManager
+@using AppWeb.Shared.Validators
 @using AppWeb.Shared.Inputs
 @using AppWeb.Client.Auth
+
+@inject LoginPageVM ViewModel
+
+<PageTitle>Login | Master Car</PageTitle>
 
 <div class="flex justify-center items-center min-h-[calc(100vh-64px)] p-8 bg-gradient-to-br from-surface to-background">
     <div class="w-full max-w-md">
@@ -22,44 +24,28 @@
             </MudCardHeader>
 
             <MudCardContent>
-                @if (_loginSuccess)
+                @if (ViewModel.LoginSuccess)
                 {
                     <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4">
                         ¡Inicio de sesión exitoso! Redirigiendo...
                     </MudAlert>
                 }
 
-                <MudForm @ref="_form" Model="@vm.Input">
-                    <div class="flex flex-col gap-4">
-                        <MudTextField T="string"
-                                      @bind-Value="vm.Input.Email"
-                                      Label="Email"
-                                      Placeholder="Ingrese su dirección de email"
-                                      Required="true"
-                                      ErrorText="El email es requerido"
-                                      Adornment="Adornment.Start"
-                                      AdornmentIcon="@Icons.Material.Filled.Email"
-                                      Immediate="true"
-                                      Variant="Variant.Outlined"
-                                      AutoFocus="true" />
+                <MudForm @ref="_form" Model="@ViewModel.Input">
+                    <FluentValidator TModel="LoginInput" Validator="@_loginValidator" />
 
+                    <div class="flex flex-col gap-4">
                         <div>
-                            <MudTextField T="string"
-                                          @bind-Value="vm.Input.Password"
-                                          Label="Contraseña"
-                                          Placeholder="Ingrese su contraseña"
-                                          Required="true"
-                                          ErrorText="La contraseña es requerida"
-                                          Adornment="Adornment.Start"
-                                          AdornmentIcon="@Icons.Material.Filled.Lock"
-                                          InputType="@(_showPassword ? InputType.Text : InputType.Password)"
-                                          Immediate="true"
-                                          Variant="Variant.Outlined" />
-                            <div class="flex justify-end mt-1">
-                                <MudIconButton Icon="@(_showPassword? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
-                                               OnClick="ToggleShowPassword"
-                                               Size="Size.Small" />
-                            </div>
+                            <MudTextField T="string" @bind-Value="ViewModel.Input.Email" For="@(() => ViewModel.Input.Email)" InputType="InputType.Email" Label="Email" Placeholder="Ingrese su dirección de email" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" AutoFocus="true" Immediate="true" Variant="Variant.Outlined" />
+                        </div>
+
+                        <div class="relative">
+                            <MudTextField T="string" @bind-Value="ViewModel.Input.Password" For="@(() => ViewModel.Input.Password)" Class="pr-10" InputType="@(ViewModel.ShowPassword? InputType.Text: InputType.Password)" Label="Contraseña" Placeholder="Ingrese su contraseña" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" Immediate="true" Variant="Variant.Outlined" />
+
+                            <MudIconButton Icon="@(ViewModel.ShowPassword? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
+                                           OnClick="@(async () => await ViewModel.TogglePasswordVisibilityCommand.ExecuteAsync(null))"
+                                           Class="absolute top-2 right-2"
+                                           Size="Size.Small" />
                         </div>
 
                         <div class="flex justify-between items-center mt-2">
@@ -72,13 +58,13 @@
 
             <MudCardActions Class="pb-4 px-4">
                 <div class="flex flex-col gap-3 w-full">
-                    <MudButton Variant="Variant.Filled"
+                    <MudButton Disabled="@ViewModel.IsLoading"
+                               Variant="Variant.Filled"
+                               OnClick="@HandleLogin"
                                Color="Color.Primary"
-                               FullWidth="true"
                                Size="Size.Large"
-                               Disabled="@_isLoading"
-                               OnClick="@HandleLogin">
-                        @if (_isLoading)
+                               FullWidth="true">
+                        @if (ViewModel.IsLoading)
                         {
                             <div class="flex items-center">
                                 <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
@@ -104,46 +90,12 @@
 </div>
 
 @code {
-    private bool _isLoading = false;
-    private bool _loginSuccess = false;
-    private bool _showPassword = false;
+    private LoginInputValidator _loginValidator = new();
     private MudForm _form = new();
-    private string _returnUrl = "/";
 
     protected override async Task OnInitializedAsync()
-    {
-        // Check if the user is already authenticated
-        if (await vm.ShouldRedirectAuthenticatedUserAsync())
-        { NavigationManager.NavigateTo("/"); return; }
-
-        // Get return URL from query string if present
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl))
-        { _returnUrl = returnUrl!; }
-    }
-
-    private void ToggleShowPassword() { _showPassword = !_showPassword; }
+    { await ViewModel.InitializeAsync(); }
 
     private async Task HandleLogin()
-    {
-        _isLoading = true;
-        try
-        {
-            await _form.Validate();
-            if (!_form.IsValid) { _isLoading = false; return; }
-
-            var success = await vm.HandleLogin(_returnUrl);
-            if (success)
-            {
-                _loginSuccess = true;
-                // No hacemos nada más, el ViewModel se encarga de la redirección
-            }
-        }
-        catch (Exception ex)
-        {
-            _loginSuccess = false;
-            Console.WriteLine($"Error en login: {ex}");
-        }
-        finally { _isLoading = false; }
-    }
+    { await ViewModel.LoginCommand.ExecuteAsync(_form); }
 }

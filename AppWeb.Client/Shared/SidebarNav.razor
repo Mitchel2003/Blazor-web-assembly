@@ -1,118 +1,110 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using AppWeb.Client.Auth
 @using MudBlazor
+
+@inject JwtAuthStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 
 <MudNavMenu Class="mt-2 pb-4">
     <div class="px-2 mb-2">
         <MudText Typo="Typo.caption" Class="ml-4 my-2 text-secondary">GENERAL</MudText>
         
-        <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" 
-                   Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-            Dashboard
-        </MudNavLink>
-        
-        <MudNavGroup Title="Users" Icon="@Icons.Material.Filled.People" Expanded="true"
-                    Class="py-3 px-4 my-1 rounded-md transition-all duration-200">
-            <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                User List
-            </MudNavLink>
-            <MudNavLink Href="/users/new" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Add User
-            </MudNavLink>
-        </MudNavGroup>
+        <AuthorizeView>
+            <Authorized>
+                <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" 
+                          Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                    Dashboard
+                </MudNavLink>
+                
+                <MudNavGroup Title="Users" Icon="@Icons.Material.Filled.People" Expanded="true"
+                            Class="py-3 px-4 my-1 rounded-md transition-all duration-200">
+                    <MudNavLink Href="/users" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        User List
+                    </MudNavLink>
+                    <MudNavLink Href="/users/new" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.PersonAdd"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Add User
+                    </MudNavLink>
+                </MudNavGroup>
+            </Authorized>
+            <NotAuthorized>
+                <MudNavLink Href="/auth/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Login"
+                          Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                    Login
+                </MudNavLink>
+            </NotAuthorized>
+        </AuthorizeView>
     </div>
     
-    <MudDivider Class="mb-2" />
-    
-    <div class="px-2 mb-2">
-        <MudText Typo="Typo.caption" Class="ml-4 my-2 text-secondary">MANAGEMENT</MudText>
-        
-        <MudNavGroup Title="Vehicles" Icon="@Icons.Material.Filled.DirectionsCar" Expanded="false"
-                    Class="py-3 px-4 my-1 rounded-md transition-all duration-200">
-            <MudNavLink Href="/vehicles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Vehicle List
-            </MudNavLink>
-            <MudNavLink Href="/vehicles/new" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Add"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Add Vehicle
-            </MudNavLink>
-            <MudNavLink Href="/vehicles/types" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Vehicle Types
-            </MudNavLink>
-        </MudNavGroup>
-        
-        <MudNavGroup Title="Services" Icon="@Icons.Material.Filled.Handyman" Expanded="false"
-                    Class="py-3 px-4 my-1 rounded-md transition-all duration-200">
-            <MudNavLink Href="/services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Service List
-            </MudNavLink>
-            <MudNavLink Href="/services/new" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Add"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Add Service
-            </MudNavLink>
-            <MudNavLink Href="/services/categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category"
-                       Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-                Service Categories
-            </MudNavLink>
-        </MudNavGroup>
-        
-        <MudNavLink Href="/appointments" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CalendarMonth"
-                   Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-            Appointments
-        </MudNavLink>
-    </div>
-    
-    <MudDivider Class="mb-2" />
-    
-    <div class="px-2">
-        <MudText Typo="Typo.caption" Class="ml-4 my-2 text-secondary">SYSTEM</MudText>
-        
-        <MudNavLink Href="/settings" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Settings"
-                   Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-            Settings
-        </MudNavLink>
-        
-        <MudNavLink Href="/auth/login" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Logout"
-                   Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
-            Logout
-        </MudNavLink>
-    </div>
+    <AuthorizeView>
+        <Authorized>
+            <MudDivider Class="mb-2" />
+            
+            <div class="px-2 mb-2">
+                <MudText Typo="Typo.caption" Class="ml-4 my-2 text-secondary">MANAGEMENT</MudText>
+                
+                <MudNavGroup Title="Vehicles" Icon="@Icons.Material.Filled.DirectionsCar" Expanded="false"
+                            Class="py-3 px-4 my-1 rounded-md transition-all duration-200">
+                    <MudNavLink Href="/vehicles" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Vehicle List
+                    </MudNavLink>
+                    <MudNavLink Href="/vehicles/new" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Add"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Add Vehicle
+                    </MudNavLink>
+                    <MudNavLink Href="/vehicles/types" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Vehicle Types
+                    </MudNavLink>
+                </MudNavGroup>
+                
+                <MudNavGroup Title="Services" Icon="@Icons.Material.Filled.Handyman" Expanded="false"
+                            Class="py-3 px-4 my-1 rounded-md transition-all duration-200">
+                    <MudNavLink Href="/services" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.List"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Service List
+                    </MudNavLink>
+                    <MudNavLink Href="/services/new" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Add"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Add Service
+                    </MudNavLink>
+                    <MudNavLink Href="/services/categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Category"
+                              Class="pl-14 py-3 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                        Service Categories
+                    </MudNavLink>
+                </MudNavGroup>
+                
+                <MudNavLink Href="/appointments" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.CalendarMonth"
+                          Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                    Appointments
+                </MudNavLink>
+            </div>
+            
+            <MudDivider Class="mb-2" />
+            
+            <div class="px-2">
+                <MudText Typo="Typo.caption" Class="ml-4 my-2 text-secondary">SYSTEM</MudText>
+                
+                <MudNavLink Href="/settings" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Settings"
+                          Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                    Settings
+                </MudNavLink>
+                
+                <MudNavLink OnClick="HandleLogout" Icon="@Icons.Material.Filled.Logout"
+                          Class="py-3 px-4 my-1 rounded-md transition-all duration-200 hover:translate-x-1">
+                    Logout
+                </MudNavLink>
+            </div>
+        </Authorized>
+    </AuthorizeView>
 </MudNavMenu>
 
-<style>
-    ::deep .mud-nav-link {
-        padding: 12px 16px 12px 12px;
-        margin: 4px 0;
-        border-radius: 6px;
+@code {
+    private async Task HandleLogout()
+    {
+        await AuthStateProvider.SetToken(null);
+        Navigation.NavigateTo("/auth/login");
     }
-    
-    ::deep .mud-nav-link.active {
-        background-color: var(--mud-palette-action-default-hover);
-    }
-    
-    ::deep .mud-nav-link:hover:not(.active) {
-        background-color: var(--mud-palette-action-default-hover);
-    }
-    
-    ::deep .mud-nav-link .mud-nav-link-text {
-        font-size: 14px;
-    }
-    
-    ::deep .mud-nav-group .mud-nav-link {
-        padding-left: 56px;
-    }
-    
-    ::deep .mud-nav-group-title {
-        padding: 12px 16px 12px 12px;
-        margin: 4px 0;
-        border-radius: 6px;
-    }
-    
-    ::deep .mud-nav-group.expanded .mud-nav-group-title {
-        font-weight: 500;
-    }
-</style>
+}

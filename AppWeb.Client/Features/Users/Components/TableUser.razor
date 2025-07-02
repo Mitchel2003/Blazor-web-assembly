@@ -1,6 +1,9 @@
 @using AppWeb.Shared.Dtos
 @using MudBlazor
 
+@inject TableUserVM ViewModel
+@implements IDisposable
+
 <MudCard Class="rounded-lg overflow-hidden">
     <MudCardHeader>
         <CardHeaderContent>
@@ -12,7 +15,7 @@
     </MudCardHeader>
 
     <MudCardContent>
-        @if (Loading)
+        @if (ViewModel.Loading)
         {
             <div class="flex justify-center items-center min-h-[150px]">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
@@ -22,27 +25,27 @@
         {
             <div class="flex flex-col gap-4">
                 <div class="flex justify-between items-center flex-wrap gap-3">
-                    <MudTextField @bind-Value="_searchString" Placeholder="Search users..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="flex-grow max-w-[300px]" IconSize="Size.Medium" Immediate="true" />
+                    <MudTextField @bind-Value="ViewModel.SearchString" Placeholder="Search users..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="flex-grow max-w-[300px]" IconSize="Size.Medium" Immediate="true" />
 
                     <div class="flex gap-2">
-                        @if (_selectedItems.Count > 0)
+                        @if (ViewModel.SelectedItems.Count > 0)
                         {
-                            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" Size="Size.Small" OnClick="BulkDeleteClicked">
-                                Delete Selected (@_selectedItems.Count)
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" Size="Size.Small" OnClick="@(() => ViewModel.BulkDeleteCommand.Execute(null))">
+                                Delete Selected (@ViewModel.SelectedItems.Count)
                             </MudButton>
                         }
 
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" Size="Size.Small" OnClick="RefreshData">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" Size="Size.Small" OnClick="@(() => ViewModel.RefreshCommand.Execute(null))">
                             Refresh
                         </MudButton>
 
-                        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="OnAddClicked">
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(() => ViewModel.AddCommand.Execute(null))">
                             Add User
                         </MudButton>
                     </div>
                 </div>
 
-                <MudTable @bind-SelectedItems="_selectedItems"
+                <MudTable @bind-SelectedItems="ViewModel.SelectedItems"
                           MultiSelection="true"
                           Bordered="true"
                           Striped="true"
@@ -51,8 +54,8 @@
                           Elevation="0"
                           RowsPerPage="10"
                           T="UserResultDto"
-                          Loading="@Loading"
-                          Items="@FilteredUsers"
+                          Loading="@ViewModel.Loading"
+                          Items="@ViewModel.FilteredUsers"
                           LoadingProgressColor="Color.Primary"
                           Class="overflow-hidden">
                     <HeaderContent>
@@ -81,13 +84,13 @@
                         <MudTd class="text-right">
                             <div class="flex justify-end">
                                 <MudTooltip Text="View Details">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small" OnClick="@(() => ViewClicked(context))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small" OnClick="@(() => ViewModel.ViewCommand.Execute(context))" />
                                 </MudTooltip>
                                 <MudTooltip Text="Edit User">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditClicked(context))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(() => ViewModel.EditCommand.Execute(context))" />
                                 </MudTooltip>
                                 <MudTooltip Text="Delete User">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteClicked(context))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => ViewModel.DeleteCommand.Execute(context))" />
                                 </MudTooltip>
                             </div>
                         </MudTd>
@@ -107,3 +110,34 @@
         }
     </MudCardContent>
 </MudCard>
+
+@code {
+    [Parameter] public IReadOnlyList<UserResultDto> Users { get; set; } = Array.Empty<UserResultDto>();
+    [Parameter] public EventCallback<List<UserResultDto>> OnBulkDelete { get; set; }
+    [Parameter] public EventCallback<UserResultDto> OnDelete { get; set; }
+    [Parameter] public EventCallback<UserResultDto> OnEdit { get; set; }
+    [Parameter] public EventCallback<UserResultDto> OnView { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public bool Loading { get; set; }
+
+    protected override void OnInitialized()
+    { //Register events from view to ViewModel
+        ViewModel.OnAdd = OnAdd;
+        ViewModel.OnView = OnView;
+        ViewModel.OnEdit = OnEdit;
+        ViewModel.OnDelete = OnDelete;
+        ViewModel.OnRefresh = OnRefresh;
+        ViewModel.OnBulkDelete = OnBulkDelete;
+        
+        //Initial update
+        UpdateViewModel();
+    }
+
+    //Update ViewModel when parameters change
+    protected override void OnParametersSet() { UpdateViewModel(); }
+    private void UpdateViewModel() { ViewModel.Users = Users; ViewModel.Loading = Loading; }
+
+    //Clean up resources if needed
+    public void Dispose() { }
+}

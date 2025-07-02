@@ -1,11 +1,12 @@
 @using AppWeb.Client.Features.Users.Components
+@using AppWeb.Client.Features.Users.Pages
 @using AppWeb.Shared.Dtos
 @using MudBlazor
 
 <section class="user-form-section mb-8">
     <div class="container mx-auto px-4">
-        <FormUser Existing="@ViewModel.Existing"
-                  OnValidSubmit="@OnSubmit"
+        <FormUser OnValidSubmit="@OnSubmit"
+                  Existing="@ViewModel.Existing"
                   Loading="@ViewModel.IsLoading"
                   Success="@ViewModel.SaveSuccess" />
     </div>

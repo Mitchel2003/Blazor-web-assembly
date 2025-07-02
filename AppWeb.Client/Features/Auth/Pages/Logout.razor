@@ -14,19 +14,10 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            // Intentar llamar al endpoint de logout del servidor primero
-            await HttpClient.PostAsync("api/auth/logout", null);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error al cerrar sesión en el servidor: {ex.Message}");
-            // Continuamos con el cierre de sesión local incluso si falla el servidor
-        }
+        try { await HttpClient.PostAsync("api/auth/logout", null); }
+        catch (Exception ex) { Console.WriteLine($"Error al cerrar sesión en el servidor: {ex.Message}"); }
         finally
-        {
-            // Limpiar el token de autenticación local
+        { //Limpiar el token de autenticación local
             await AuthStateProvider.SetToken(null);
             NavigationManager.NavigateTo("/auth/login");
         }

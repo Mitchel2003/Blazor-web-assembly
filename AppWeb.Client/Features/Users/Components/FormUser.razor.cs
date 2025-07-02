@@ -1,65 +1,80 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.AspNetCore.Components;
-using AppWeb.Shared.Validators;
+using CommunityToolkit.Mvvm.Input;
 using FluentValidation.Results;
-using AppWeb.Shared.Inputs;
-using AppWeb.Shared.Dtos;
 using FluentValidation;
 using MudBlazor;
 
+using AppWeb.Shared.Validators;
+using AppWeb.Shared.Inputs;
+using AppWeb.Shared.Dtos;
+
 namespace AppWeb.Client.Features.Users.Components;
 
-public partial class FormUser : ComponentBase
+public partial class FormUserVM : ObservableObject
 {
-    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-    [Parameter] public EventCallback<object> OnValidSubmit { get; set; }
-    [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Parameter] public UserResultDto? Existing { get; set; }
+    [ObservableProperty] private UpdateUserInput _updateModel = new();
+    [ObservableProperty] private CreateUserInput _createModel = new();
+    [ObservableProperty] private UserResultDto? _existing;
+    [ObservableProperty] private bool _isActive = true;
+    [ObservableProperty] private bool _success = false;
+    [ObservableProperty] private bool _loading = false;
 
+    public bool IsEdit => Existing is not null;
+    public IMudDialogInstance? MudDialog { get; set; }
     private readonly CreateUserInputValidator _createValidator = new();
     private readonly UpdateUserInputValidator _updateValidator = new();
-    private readonly CreateUserInput _createModel = new();
-    private readonly UpdateUserInput _updateModel = new();
-    private bool _isActive { get; set; } = false;
-    private MudForm _form = default!;
-    private bool _success = false;
-    private bool _loading = false;
-    private bool _isEdit;
+    private readonly NavigationManager _nav;
 
-    #region Context ------------------------------------------------------------
-    private IValidator CurrentValidator => _isEdit ? (IValidator)_updateValidator : _createValidator;
-    private object CurrentModel => _isEdit ? (object)_updateModel : _createModel;
+    #region Current ------------------------------------------------------------
+    public EventCallback<object> OnValidSubmit { get; set; }
+    public object CurrentModel => IsEdit ? (object)UpdateModel : CreateModel;
+    public IValidator CurrentValidator => IsEdit ? (IValidator)_updateValidator : _createValidator;
     #endregion ---------------------------------------------------------------------
 
-    private void Cancel()
+    public FormUserVM(NavigationManager nav)
+    { _nav = nav; }
+
+    public void Initialize(UserResultDto? existingUser = null)
+    {
+        Existing = existingUser;
+        if (IsEdit && Existing is not null)
+        {
+            IsActive = Existing.IsActive;
+            UpdateModel.Id = Existing.Id;
+            UpdateModel.Email = Existing.Email;
+            UpdateModel.Username = Existing.Username;
+            UpdateModel.Password = Existing.Password;
+        }
+        else { IsActive = true; }
+    }
+
+    [RelayCommand]
+    public void Cancel()
     {
         if (MudDialog is not null) MudDialog.Cancel();
-        else Nav.NavigateTo("/users");
+        else _nav.NavigateTo("/users");
     }
 
-    protected override void OnInitialized()
+    [RelayCommand]
+    public async Task Submit(MudForm form)
     {
-        _isEdit = Existing is not null;
-        if (_isEdit && Existing is not null)
-        {
-            _isActive = Existing.IsActive;
-            _updateModel.Id = Existing.Id;
-            _updateModel.Email = Existing.Email;
-            _updateModel.Username = Existing.Username;
-            _updateModel.Password = Existing.Password;
-        }
-        else { _isActive = true; }
-    }
+        if (form == null) return;
+        await form.Validate();
+        ValidationResult fvResult = IsEdit
+            ? _updateValidator.Validate(UpdateModel)
+            : _createValidator.Validate(CreateModel);
+        if (!form.IsValid || !fvResult.IsValid) return;
+        object payload = IsEdit ? UpdateModel : CreateModel;
 
-    private async Task SubmitAsync()
-    {
-        await _form.Validate();
-        ValidationResult fvResult = _isEdit
-            ? _updateValidator.Validate(_updateModel)
-            : _createValidator.Validate(_createModel);
-        if (!_form.IsValid || !fvResult.IsValid) return;
-        object payload = _isEdit ? _updateModel : _createModel;
-        // Invoke the OnValidSubmit callback if it has delegates
+        Loading = true; //Set loading state
+        //Apply the IsActive state to the model
+        if (IsEdit) { UpdateModel.IsActive = IsActive; }
+        else { CreateModel.IsActive = IsActive; }
+        //Invoke the OnValidSubmit callback if it has delegates
         if (MudDialog is not null) MudDialog.Close(DialogResult.Ok(payload));
         else if (OnValidSubmit.HasDelegate) await OnValidSubmit.InvokeAsync(payload);
+        Loading = false;
+        Success = true;
     }
 }

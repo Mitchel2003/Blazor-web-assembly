@@ -1,5 +1,4 @@
 using AppWeb.Application.Graphql.Handlers;
-using AppWeb.Domain.Interfaces;
 using FluentValidation;
 
 namespace AppWeb.Infrastructure.Persistence.Validators;
