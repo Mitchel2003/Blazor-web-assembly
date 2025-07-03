@@ -1,12 +1,14 @@
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @page "/users/edit/{Id:int}"
 @page "/users/create"
 
 @using AppWeb.Client.Features.Users.Sections
-@using AppWeb.Client.Shared.Ui
-@inject FormUserPageVM vm
 @using MudBlazor
 
-<PageTitle>@(vm.IsLoading ? "Loading..." : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")</PageTitle>
+<PageTitle>
+    @if (Id.HasValue) { @(updateVM.IsLoading ? "Loading..." : updateVM.Existing is null ? $"User #{Id}" : $"Edit User #{updateVM.Existing.Id}") }
+    else { @("Create User") }
+</PageTitle>
 
 <div class="page-user-form">
     <section class="page-header mb-6">
@@ -14,7 +16,8 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">
-                        @(vm.IsLoading ? "Loading..." : vm.Existing is null ? "Create User" : $"Edit User #{vm.Existing.Id}")
+                        @if (Id.HasValue) { @(updateVM.IsLoading ? "Loading..." : updateVM.Existing is null ? $"User #{Id}" : $"Edit User #{updateVM.Existing.Id}") }
+                        else { @("Create User") }
                     </h1>
                     <p class="text-gray-500">Fill in the form and save the user</p>
                 </div>
@@ -27,19 +30,28 @@
         </div>
     </section>
 
-    @if (vm.IsLoading)
+    @if (Id.HasValue)
     {
-        <div class="container mx-auto px-4 py-8 flex justify-center">
-            <MudProgressCircular Indeterminate Size="Size.Medium" />
-        </div>
+        @if (updateVM.IsLoading)
+        {
+            <div class="container mx-auto px-4 py-8 flex justify-center">
+                <MudProgressCircular Indeterminate Size="Size.Medium" />
+            </div>
+        }
+        else
+        {
+            <UserFormSection OnSubmit="@(async () => await updateVM.UpdateUserAsync())"
+                             ExistingUser="@updateVM.Existing"
+                             Success="@updateVM.SaveSuccess"
+                             Loading="@updateVM.IsSaving" 
+                             Input="@updateVM.Input"/>
+        }
     }
     else
     {
-        <UserFormSection ExistingUser="@vm.Existing" OnSubmit="vm.HandleValidSubmit" Success="@vm.SaveSuccess" Loading="@vm.IsSaving" />
+        <UserFormSection OnSubmit="@(async () => await createVM.CreateUserAsync())"
+                         Success="@createVM.SaveSuccess"
+                         Loading="@createVM.IsSaving"
+                         Input="@createVM.Input"/>
     }
 </div>
-
-@code {
-    [Parameter] public int? Id { get; set; }
-    protected override async Task OnInitializedAsync() { await vm.LoadAsync(Id); }
-}

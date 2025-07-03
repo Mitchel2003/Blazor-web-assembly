@@ -1,19 +1,22 @@
 @using AppWeb.Client.Features.Users.Components
-@using AppWeb.Client.Features.Users.Pages
+@using AppWeb.Shared.Inputs
 @using AppWeb.Shared.Dtos
 @using MudBlazor
 
 <section class="user-form-section mb-8">
     <div class="container mx-auto px-4">
-        <FormUser OnValidSubmit="@OnSubmit"
-                  Existing="@ViewModel.Existing"
-                  Loading="@ViewModel.IsLoading"
-                  Success="@ViewModel.SaveSuccess" />
+        <FormUser OnSubmit="@OnSubmit"
+                  Existing="@ExistingUser"
+                  Loading="@Loading"
+                  Success="@Success"
+                  Input="@Input"/>
     </div>
 </section>
 
 @code {
-    [Parameter] public FormUserPageVM ViewModel { get; set; } = default!;
-    // Event handler to forward submission to the view model
-    private async Task OnSubmit(object payload) { await ViewModel.HandleValidSubmit(payload); }
+    [Parameter] public UserResultDto? ExistingUser { get; set; }
+    [Parameter] public object Input { get; set; } = default!;
+    [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Success { get; set; }
 }

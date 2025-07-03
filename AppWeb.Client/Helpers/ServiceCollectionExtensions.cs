@@ -8,6 +8,7 @@ namespace AppWeb.Client.Helpers;
 /// <summary>Extension methods for IServiceCollection to register client-side services.</summary>
 public static class ServiceCollectionExtensions
 {
+    #region Authentication ------------------------------------------------------------
     /// <summary>Registers authentication-related services.</summary>
     public static IServiceCollection AddAuthServices(this IServiceCollection services)
     {
@@ -16,7 +17,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<JwtHandler>();
         return services;
     }
-    
+    #endregion ---------------------------------------------------------------------
+
+    #region Api client ------------------------------------------------------------
     /// <summary>Registers HTTP clients with optional base address.</summary>
     public static IServiceCollection AddHttpClients(this IServiceCollection services, Uri? apiBase = null)
     {
@@ -31,28 +34,28 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<IAuthApiClient, AuthApiClient>(client => { if (apiBase != null) client.BaseAddress = apiBase; }).AddHttpMessageHandler<JwtHandler>();
         return services;
     }
-    
-    /// <summary>Registers all ViewModels in the assembly.</summary>
+    #endregion ---------------------------------------------------------------------
+
+    #region Current ------------------------------------------------------------
     public static IServiceCollection AddViewModels(this IServiceCollection services)
-    {
-        var assembly = Assembly.GetExecutingAssembly();        
-        RegisterViewModelsByNamespace(services, assembly, "Pages"); //Register ViewModels in the ViewModels namespace
-        RegisterViewModelsByNamespace(services, assembly, "Components"); //Register ViewModels in the ViewModels namespace
+    { //Registers all ViewModels in the current assembly
+        var assembly = Assembly.GetExecutingAssembly();
+        RegisterViewModelsByNamespace(services, assembly, "Pages");
+        RegisterViewModelsByNamespace(services, assembly, "Components");
         RegisterComponentViewModels(services, assembly); //Register component ViewModels
         return services;
     }
     
-    /// <summary>Registers ViewModels in namespaces ending with the specified suffix.</summary>
     private static void RegisterViewModelsByNamespace(IServiceCollection services, Assembly assembly, string namespaceSuffix)
-    {
+    { //Registers ViewModels in a specific namespace ending with the given suffix
         var viewModelTypes = assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("VM", StringComparison.Ordinal) && t.Namespace?.EndsWith(namespaceSuffix, StringComparison.Ordinal) == true);
         foreach (var vmType in viewModelTypes) services.AddScoped(vmType);
     }
     
-    /// <summary>Registers component ViewModels.</summary>
     private static void RegisterComponentViewModels(IServiceCollection services, Assembly assembly)
-    {
+    { //Registers component ViewModels
         var componentVmTypes = assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("VM", StringComparison.Ordinal) && t.Namespace?.Contains("Components", StringComparison.Ordinal) == true);
         foreach (var vmType in componentVmTypes) services.AddScoped(vmType);
     }
+    #endregion ---------------------------------------------------------------------
 }

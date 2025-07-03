@@ -30,18 +30,10 @@
 </div>
 
 @code {
-    /// <summary>
-    /// Number of text/password inputs to simulate. Default = 2 (username & password).
-    /// </summary>
+    /// <summary>Number of text/password inputs to simulate. Default = 2 (username & password).</summary>
     [Parameter] public int FieldCount { get; set; } = 2;
-
-    /// <summary>
-    /// Renders circular logo placeholder on top of the card.
-    /// </summary>
+    /// <summary>Renders circular logo placeholder on top of the card.</summary>
     [Parameter] public bool ShowBrand { get; set; } = true;
-
-    /// <summary>
-    /// Renders social-login button placeholders below the primary action.
-    /// </summary>
+    /// <summary>Renders social-login button placeholders below the primary action.</summary>
     [Parameter] public bool ShowSocial { get; set; } = false;
 }

@@ -23,6 +23,7 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\AppWeb.Shared\AppWeb.Shared.csproj" />
+	<ProjectReference Include="..\AppWeb.ViewModels\AppWeb.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>
