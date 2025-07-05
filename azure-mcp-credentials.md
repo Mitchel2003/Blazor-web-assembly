@@ -25,3 +25,26 @@ Por favor, completa los siguientes campos con la información de tu entorno de A
 - **AZURE_SQL_USER** y **AZURE_SQL_PASSWORD**: Credenciales de acceso a la base de datos (si usas autenticación SQL).
 
 > **Importante:** No compartas este archivo fuera de tu entorno seguro.
+
+
+## CSR (Client-Side Rendering):
+ `En CSR, el navegador descarga una página HTML vacía y luego ejecuta JavaScript para renderizar el contenido. Esto puede resultar en una experiencia más interactiva y rápida una vez que la página está cargada, pero puede tener un tiempo de carga inicial más lento y afectar negativamente al SEO.`
+
+ `Es adecuado para aplicaciones web altamente interactivas donde la velocidad de carga inicial no es tan crítica.`
+
+## SSR (Server-Side Rendering):
+ `En SSR, el servidor genera el HTML completo de la página antes de enviarlo al navegador. Esto resulta en un tiempo de carga inicial más rápido y una mejor indexación por los motores de búsqueda (SEO), pero puede requerir más recursos del servidor y puede ser más complejo de implementar.`
+
+ `Es beneficioso para sitios web donde el SEO y la velocidad de carga inicial son importantes.`
+
+## SSG (Static Site Generation): 
+ `En SSG, las páginas HTML se generan durante la compilación y se sirven como archivos estáticos. Esto resulta en tiempos de carga extremadamente rápidos y una excelente experiencia de usuario, pero no es adecuado para sitios web con contenido altamente dinámico o que cambia con frecuencia.`
+
+ `Ideal para sitios web con contenido estático, como blogs, documentación, etc.`
+
+## En resumen: 
+ `CSR: Rápido después de la carga inicial, ideal para aplicaciones interactivas.`
+ `SSR: Carga rápida inicial, buen SEO, pero puede ser más complejo.`
+ `SSG: Carga muy rápida, ideal para contenido estático, pero no para contenido dinámico.`
+
+### ---------------------------------------------------------------------------------------------------- ###
