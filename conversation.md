@@ -1,68 +1,83 @@
-Pregunta:
-So let me explain you what need here and first tell you that we we get a massage from all CEO or boss he say that the first task it's about extract the view model all parts from The view model to back it's a little complicated with I one that you can explain me what means this so it's important because he say that finally we can use like project Liberty so use in both side, client MAUI also client Blazer, SO THIS IS THE SCORE THAT WE NEED TO DO first I wanted you can explain me in other words what was teacher told me so in this moment we have the view models and you know we have our page and components so each one have our logic and like the file that I shared to you, so I wanted you can search in the web or documentation about this.
+Por qué existen ambos:
 
+ValidatableViewModel
+• Añade a ViewModelBase la capacidad de validar un 
+Model
+ mediante 
+ValidationHelper
+c:\Users\herre\Documents\Blazor-web-assembly\AppWeb.ViewModels\Core\Validation\ValidationHelper.cs
+.
+• No sabe nada de guardar, cargar o borrar – solo expone el estado de errores y métodos Validate/ValidateAsync.
+ViewModelCrud<TModel,TId>
+• Añade a ViewModelBase (otra vez) todo el flujo CRUD: 
+LoadAsync
+, 
+SaveAsync
+, 
+DeleteAsync
+, estados (IsLoading, IsSaving, …) y comandos pre-cableados.
+• Define los métodos abstractos 
+GetByIdAsync
+c:\Users\herre\Documents\Blazor-web-assembly\AppWeb.ViewModels\Features\Users\UpdateUserVM.cs
+, 
+OnSaveAsync
+c:\Users\herre\Documents\Blazor-web-assembly\AppWeb.ViewModels\Features\Users\UpdateUserVM.cs
+, 
+OnDeleteAsync
+ para que los VM concretos conecten su servicio.
+• NO hereda de ValidatableViewModel, por eso vuelve a declarar TModel Model, generando duplicidad.
+La “inconsistencia” que ves (CreateUserVM hereda de Validatable… y UpdateUserVM de ViewModelCrud) viene de ahí:
 
-Respuesta:
-Very good explanation! What your boss or teacher is asking for is actually a well-known architectural practice, and I'll translate it clearly for you, then give you the professional interpretation:
+• CreateUserVM solo crea: no necesita toda la artillería CRUD, pero sí validación → usa ValidatableViewModel.
+• UpdateUserVM sí necesita cargar, actualizar, controlar cambios, etc. → usa ViewModelCrud y vuelve a implementar su validación “a mano” (antes de llamar al servicio) porque Validatable… no está en la jerarquía.
 
-🎯 What they mean by "Extract ViewModels to Back"
-✔️ Right now, your ViewModels live inside your Client, for example inside your Blazor project or MAUI project.
-✔️ But they want you to move the ViewModels to a shared library or backend project, so:
+Consecuencias actuales
 
-They are NOT tightly coupled to Blazor or MAUI.
+– Duplicación de propiedades (
+Model
+, IsLoading, etc.) y lógica de validación repetida en los VM que heredan de ViewModelCrud.
+– Dos formas distintas de gestionar comandos (AsyncRelayCommand creados a mano en CreateUserVM vs generados en base en UpdateUserVM).
+– Mayor superficie de código y riesgo de divergencia.
 
-You can reuse them in multiple frontends, like Blazor WebAssembly, MAUI, even Unit Tests.
-✔️ Sometimes this concept is called Project Liberty, or "liberating" logic from the View/UI layer.
+Cómo simplificar
 
-✅ Professional Translation
-They want a Clean Architecture improvement:
+Heredar ViewModelCrud de ValidatableViewModel
+csharp
+public abstract partial class ViewModelCrud<TModel, TId>
+        : ValidatableViewModel<TModel>
+        where TModel : class, new()
+{
+    // se elimina la propiedad Model duplicada;
+    // el constructor llama al de la base:
+    protected ViewModelCrud(IModelFactory factory)
+        : base(factory.Create<TModel>())
+    { … }
+}
+Mover a ViewModelCrud la validación automática antes de salvar:
+csharp
+protected virtual async Task SaveAsync()
+{
+    if (!await ValidateAsync()) { StatusMessage = "Fix validation errors"; return; }
+    …
+}
+Hacer que CreateUserVM herede también de ViewModelCrud:
+csharp
+public partial class CreateUserVM
+        : ViewModelCrud<CreateUserInput, int>, ICreateUserVM
+{ … }
+– Sobrescribe solo 
+OnSaveAsync
+ (crear) y opcionalmente 
+OnDeleteAsync
+ (no aplica).
+– Obtiene gratis IsModified, SaveCommand, etc., borrando bastante código duplicado.
 
-Current Situation	What They Want
-ViewModels live only inside Blazor or MAUI.	ViewModels live in a shared project, reusable.
-Tightly coupled to UI frameworks.	Decoupled, UI-agnostic ViewModels.
-Hard to share logic across platforms.	Shared ViewModels across MAUI, Blazor, etc.
-Harder to Unit Test.	Easier to Unit Test ViewModel logic.
+Eliminar lógica duplicada de comandos/estados que ahora vienen del base.
+Beneficios
 
-🛠️ Where do we move the ViewModels?
-Normally you create a Shared Project, for example:
+• Un único stack: ViewModelBase → ValidatableViewModel → ViewModelCrud → VM concretos.
+• Todos los VM que guardan datos se validan de la misma forma.
+• Menos líneas y menos bugs por divergencias.
+• Fácil extender con nuevas capacidades (p.ej. paginación) escribiendo solo en la capa intermedia.
 
-Copiar
-Editar
-AppWeb.ViewModels
-Or you can place them in AppWeb.Application if you follow Clean Architecture strictly, but usually ViewModels go in:
-
-✔️ A Shared Class Library, referenced by both:
-
-AppWeb.Client (Blazor WASM)
-
-AppWeb.MAUI
-
-Potentially by tests or other clients
-
-✅ Example Professional Structure
-scss
-Copiar
-Editar
-AppWeb.Shared
-AppWeb.Domain
-AppWeb.Application
-AppWeb.Infrastructure
-AppWeb.ViewModels  <-- NEW, portable ViewModels
-AppWeb.Client       (Blazor)
-AppWeb.MAUI         (Mobile)
-In this case, both Blazor and MAUI reference AppWeb.ViewModels and use the same logic.
-
-📚 Terminology for Research
-You can search in web or docs with terms like:
-
-✔️ "Shared ViewModels Clean Architecture"
-✔️ "Cross-platform ViewModels Blazor MAUI"
-✔️ "MVVM shared library .NET"
-✔️ "Project Liberty architecture" (less formal, but your boss probably used this term)
-✔️ "Portable Class Library ViewModel" (older term, same idea)
-
-✅ Benefits of this Approach
-✔️ You avoid duplicate logic in each UI.
-✔️ You maintain professional, scalable structure.
-✔️ Unit testing becomes simpler.
-✔️ Maintenance improves, because logic is centralized.
+En resumen, la “inconsistencia” no es un bug, sino una herencia que quedó a mitad de camino. Integrar ambos conceptos en la misma jerarquía (o usar composición, si prefieres) elimina la redundancia y deja un diseño más limpio y coherente.

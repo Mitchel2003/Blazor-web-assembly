@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using AppWeb.ViewModels.Core.Services;
 using Microsoft.AspNetCore.Components;
 using CommunityToolkit.Mvvm.Input;
 using AppWeb.Client.Services;
@@ -21,15 +22,17 @@ public partial class TableUserVM : ObservableObject
     public EventCallback OnRefresh;
     public EventCallback OnAdd;
 
+    private readonly INavigationService _navigationService;
     private readonly IUsersApiClient _usersApiClient;
     private readonly IDialogService _dialogService;
     private readonly ISnackbar _snackbar;
 
-    public TableUserVM(IDialogService dialogService, IUsersApiClient usersApiClient, ISnackbar snackbar)
+    public TableUserVM(IDialogService dialogService, IUsersApiClient usersApiClient, ISnackbar snackbar, INavigationService navigationService)
     {
+        _snackbar = snackbar;
         _dialogService = dialogService;
         _usersApiClient = usersApiClient;
-        _snackbar = snackbar;
+        _navigationService = navigationService;
     }
 
     /// <summary>Lista filtrada según el texto de búsqueda.</summary>

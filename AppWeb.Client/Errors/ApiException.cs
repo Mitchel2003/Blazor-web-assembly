@@ -5,6 +5,8 @@ namespace AppWeb.Client.Errors;
 
 public class ApiException : Exception
 {
+    private static readonly IApiErrorParser _errorParser = new ApiErrorParser();
+    
     public HttpStatusCode StatusCode { get; }
     public IReadOnlyList<string> Errors { get; }
     public ApiException(HttpStatusCode statusCode, IEnumerable<string> errors) : base(string.Join(" | ", errors))
@@ -17,7 +19,7 @@ public class ApiException : Exception
     public static async Task<ApiException> FromHttpResponseAsync(HttpResponseMessage response)
     {
         var payload = await response.Content.ReadAsStringAsync();
-        var errors = ApiErrorParser.ParseErrors(payload);
+        var errors = _errorParser.ParseErrors(payload);
         return new ApiException(response.StatusCode, errors);
     }
 }

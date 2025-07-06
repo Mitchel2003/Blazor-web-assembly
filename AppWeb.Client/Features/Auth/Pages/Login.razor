@@ -1,11 +1,14 @@
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @page "/auth/login"
 
+@using AppWeb.ViewModels.Features.Auth
 @using AppWeb.Shared.Validators
 @using AppWeb.Shared.Inputs
 @using AppWeb.Client.Auth
+@using System.Web
 
-@inject LoginPageVM ViewModel
+@inject ILoginVM ViewModel
+@implements IDisposable
 
 <PageTitle>Login | Master Car</PageTitle>
 
@@ -25,23 +28,23 @@
             </MudCardHeader>
 
             <MudCardContent>
-                @if (ViewModel.LoginSuccess)
+                @if (ViewModel.OperationSuccess)
                 {
                     <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4">
                         ¡Inicio de sesión exitoso! Redirigiendo...
                     </MudAlert>
                 }
 
-                <MudForm @ref="_form" Model="@ViewModel.Input">
+                <MudForm @ref="_form" Model="@ViewModel.Model">
                     <FluentValidator TModel="LoginInput" Validator="@_loginValidator" />
 
                     <div class="flex flex-col gap-4">
                         <div>
-                            <MudTextField T="string" @bind-Value="ViewModel.Input.Email" For="@(() => ViewModel.Input.Email)" InputType="InputType.Email" Label="Email" Placeholder="Ingrese su dirección de email" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" AutoFocus="true" Immediate="true" Variant="Variant.Outlined" />
+                            <MudTextField T="string" @bind-Value="ViewModel.Model.Email" For="@(() => ViewModel.Model.Email)" InputType="InputType.Email" Label="Email" Placeholder="Ingrese su dirección de email" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Email" AutoFocus="true" Immediate="true" Variant="Variant.Outlined" />
                         </div>
 
                         <div class="relative">
-                            <MudTextField T="string" @bind-Value="ViewModel.Input.Password" For="@(() => ViewModel.Input.Password)" Class="pr-10" InputType="@(ViewModel.ShowPassword? InputType.Text: InputType.Password)" Label="Contraseña" Placeholder="Ingrese su contraseña" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" Immediate="true" Variant="Variant.Outlined" />
+                            <MudTextField T="string" @bind-Value="ViewModel.Model.Password" For="@(() => ViewModel.Model.Password)" Class="pr-10" InputType="@(ViewModel.ShowPassword? InputType.Text: InputType.Password)" Label="Contraseña" Placeholder="Ingrese su contraseña" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" Immediate="true" Variant="Variant.Outlined" />
 
                             <MudIconButton Icon="@(ViewModel.ShowPassword? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
                                            OnClick="@(async () => await ViewModel.TogglePasswordVisibilityCommand.ExecuteAsync(null))"
@@ -59,17 +62,24 @@
 
             <MudCardActions Class="pb-4 px-4">
                 <div class="flex flex-col gap-3 w-full">
-                    <MudButton Disabled="@ViewModel.IsLoading"
+                    <MudButton Disabled="@(ViewModel.IsSaving || ViewModel.RedirectionInProgress)"
                                Variant="Variant.Filled"
                                OnClick="@HandleLogin"
                                Color="Color.Primary"
                                Size="Size.Large"
                                FullWidth="true">
-                        @if (ViewModel.IsLoading)
+                        @if (ViewModel.IsSaving)
                         {
                             <div class="flex items-center">
                                 <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
                                 <span>Iniciando sesión...</span>
+                            </div>
+                        }
+                        else if (ViewModel.RedirectionInProgress)
+                        {
+                            <div class="flex items-center">
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" Class="mr-2" />
+                                <span>Redirigiendo...</span>
                             </div>
                         }
                         else
@@ -81,7 +91,7 @@
                     <div class="flex justify-center mt-2">
                         <MudText Typo="Typo.body2">
                             ¿No tiene una cuenta?
-                            <MudLink Href="/users/create" Underline="Underline.Always">Regístrese</MudLink>
+                            <MudLink Href="/users/create" Underline="Underline.Always" Target="_self">Regístrese</MudLink>
                         </MudText>
                     </div>
                 </div>
@@ -93,10 +103,18 @@
 @code {
     private LoginInputValidator _loginValidator = new();
     private MudForm _form = new();
+    
+    private async Task HandleLogin() { await ViewModel.LoginCommand.ExecuteAsync(_form); }
+
+    private void OnLoginSuccessful(object sender, LoginSuccessEventArgs e) { StateHasChanged();}
 
     protected override async Task OnInitializedAsync()
-    { await ViewModel.InitializeAsync(); }
-
-    private async Task HandleLogin()
-    { await ViewModel.LoginCommand.ExecuteAsync(_form); }
+    { 
+        // Subscribe to the login success event
+        if (ViewModel is LoginVM loginVM) loginVM.LoginSuccessful += OnLoginSuccessful!;
+        await ViewModel.InitializeAsync();
+    }
+    
+    public void Dispose() //Unsubscribe from events when the component is disposed
+    { if (ViewModel is LoginVM loginVM) { loginVM.LoginSuccessful -= OnLoginSuccessful!; } }
 }

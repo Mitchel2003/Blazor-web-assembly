@@ -89,6 +89,7 @@
 
     protected override void OnInitialized()
     {
+        AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
         base.OnInitialized();
         _theme = new()
         {
@@ -106,10 +107,13 @@
     private void ToggleDrawer() { _drawerOpen = !_drawerOpen; }
     private void ToggleDarkMode() { _isDarkMode = !_isDarkMode; }
     
+    private void OnAuthStateChanged(Task<AuthenticationState> _)
+    { InvokeAsync(StateHasChanged); }
+    
     private async Task HandleLogout()
     {
         await AuthStateProvider.SetToken(null);
-        NavigationManager.NavigateTo("/auth/login");
+        NavigationManager.NavigateTo("/auth/login", forceLoad: false);
     }
 
     private readonly PaletteLight _lightPalette = new()

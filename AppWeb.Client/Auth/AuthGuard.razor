@@ -2,8 +2,10 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components
+@using AppWeb.ViewModels.Core.Services
 
 @inject AuthenticationStateProvider AuthStateProvider
+@inject INavigationService NavigationService
 @inject NavigationManager NavigationManager
 
 @code {
@@ -13,19 +15,38 @@
     [Parameter] public string DashboardPath { get; set; } = "/";
     [Parameter] public string ReturnUrl { get; set; } = "/";
     [Parameter] public RenderFragment? ChildContent { get; set; }
+    
+    private bool _redirectionHandled = false;
+    private bool _isInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
+        if (_isInitialized) return;
+        _isInitialized = true;
+        
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        if (_redirectionHandled) return;
+
         if (RequireAuthentication && !isAuthenticated)
-        { //User not authenticated but trying to access protected route
-            var returnUrl = Uri.EscapeDataString(NavigationManager.Uri);
-            NavigationManager.NavigateTo($"{LoginPath}?returnUrl={returnUrl}");
+        { 
+            // User not authenticated but trying to access protected route
+            _redirectionHandled = true;
+            
+            // Get current URL for return after login
+            var currentUrl = NavigationManager.Uri;
+            var baseUri = NavigationManager.BaseUri;
+            var relativeUrl = currentUrl.Replace(baseUri, "/");
+            
+            // Navigate to login with return URL
+            await NavigationService.NavigateToAsync(relativeUrl);
+            return;
         }
         else if (RedirectAuthenticatedFromLogin && isAuthenticated)
-        { //User already authenticated but trying to access login page
-            NavigationManager.NavigateTo(DashboardPath);
+        { //user already authenticated but trying to access login page
+            _redirectionHandled = true; //set redirection handled to true
+            NavigationManager.NavigateTo(DashboardPath, forceLoad: true);
+            return;
         }
     }
 }

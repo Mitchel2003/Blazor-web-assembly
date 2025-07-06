@@ -1,104 +1,90 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using AppWeb.ViewModels.Core.Services;
+using AppWeb.ViewModels.Core.Factory;
+using CommunityToolkit.Mvvm.Input;
 using AppWeb.ViewModels.Core.Base;
 using AppWeb.Shared.Inputs;
 using AppWeb.Shared.Dtos;
 
 namespace AppWeb.ViewModels.Features.Users;
 
-/// <summary>
-/// ViewModel para la actualización de usuarios.
-/// Mantiene responsabilidad única para el caso de uso de actualización.
-/// </summary>
-public partial class UpdateUserVM : ViewModelBase, IUpdateUserVM
+/// <summary>ViewModel for user updates, implementing CRUD operations.</summary>
+public partial class UpdateUserVM : ViewModelCrud<UpdateUserInput, int>, IUpdateUserVM
 {
-    private readonly INavigationService _navigationService;
-    private readonly IMessageService _messageService;
     private readonly IUsersService _usersService;
+    private readonly IMessageService _messageService;
+    private readonly INavigationService _navigationService;
 
-    [ObservableProperty] private UpdateUserInput input = new();
-    [ObservableProperty] private UserResultDto? existing;
-    [ObservableProperty] private bool saveSuccess;
-    [ObservableProperty] private bool isSaving;
-    [ObservableProperty] private bool isLoading;
+    [ObservableProperty] private bool _redirectionInProgress;
+    public event EventHandler<UserUpdatedEventArgs>? UserUpdated;
 
-    public UpdateUserVM(IUsersService usersService, INavigationService navigationService, IMessageService messageService)
+    public UpdateUserVM(IUsersService usersService, IMessageService messageService, INavigationService navigationService, IModelFactory modelFactory)
+        : base(modelFactory, messageService)
     {
+        Title = "Edit User";
         _usersService = usersService;
-        _navigationService = navigationService;
         _messageService = messageService;
+        _navigationService = navigationService;
     }
 
-    /// <summary>Renderiza el formulario de actualización.</summary>
-    public async Task<bool> LoadUserAsync(int userId, CancellationToken cancellationToken = default)
+    /// <summary>Update title when model is loaded.</summary>
+    protected override void OnModelLoaded()
+    { base.OnModelLoaded(); Title = $"Edit User: {Model?.Username}"; }
+
+    /// <summary>Gets the user by ID from the service.</summary>
+    public override async Task<UpdateUserInput> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        if (IsLoading) return false;
+        var user = await _usersService.GetUserByIdAsync(id, cancellationToken);
+        if (user == null) return null!; //if user not found, return null
+        //map to input using ModelFactory (no direct instantiation)
+        return _modelFactory.CreateFrom<UpdateUserInput, UserResultDto>(user);
+    }
+
+    /// <summary>Process the save operation with the users service.</summary>
+    protected override async Task<bool> OnSaveAsync()
+    {
         try
         {
-            IsLoading = true;
-            var user = await _usersService.GetUserByIdAsync(userId, cancellationToken);
-            if (user == null) { await _messageService.ShowErrorAsync("Usuario no encontrado"); return false; }
-            
-            Existing = user;
-            Input = new UpdateUserInput
-            {
-                Id = user.Id,
-                Email = user.Email,
-                Username = user.Username,
-                Password = user.Password,
-                IsActive = user.IsActive
-            };
-            return true;
+            var result = await _usersService.UpdateUserAsync(Model);
+            if (result == null) { await _messageService.ShowErrorAsync("Error updating user"); return false; }
+            await _messageService.ShowSuccessAsync("User updated successfully");
+            UserUpdated?.Invoke(this, new UserUpdatedEventArgs //notify subscribers
+            { Success = true, UserId = result.Id, Username = result.Username ?? Model.Username, ShouldNavigate = true });
+
+            RedirectionInProgress = true; //initiate redirection
+            await Task.Delay(800); //to allow the success message
+            await NavigateToUsersList(); //navigate to users list
+            return result != null;
         }
-        catch (Exception ex) { await _messageService.ShowErrorAsync($"Error inesperado: {ex.Message}"); return false; }
-        finally { IsLoading = false; }
+        catch (Exception ex) { await _messageService.ShowErrorAsync($"Unexpected error: {ex.Message}"); return false; }
     }
 
-    /// <summary>Ejecuta el proceso de actualización de usuario.</summary>
-    public async Task<bool> UpdateUserAsync(CancellationToken cancellationToken = default)
+    [RelayCommand]
+    /// <summary>Navigate back with confirmation if changes are pending.</summary>
+    public async Task NavigateBackAsync()
     {
-        if (IsSaving) return false;
-        try
-        {
-            IsSaving = true;
-            SaveSuccess = false;
-            var result = await _usersService.UpdateUserAsync(Input, cancellationToken);
-            if (result == null) { await _messageService.ShowErrorAsync("Error al actualizar usuario"); return false; }
-            await _messageService.ShowSuccessAsync("Usuario actualizado exitosamente");
-            SaveSuccess = true;
-            
-            //Delay to allow showing success message
-            await Task.Delay(1500, cancellationToken);
-            await _navigationService.NavigateToAsync("/users");
-            return true;
+        if (RedirectionInProgress) return;
+        if (IsModified)
+        { //check for unsaved changes
+            var confirm = await _messageService.ConfirmAsync("Discard Changes", "You have unsaved changes. Are you sure you want to discard them?");
+            if (!confirm) return;
         }
-        catch (Exception ex) { await _messageService.ShowErrorAsync($"Error inesperado: {ex.Message}"); return false; }
-        finally { IsSaving = false; }
+        RedirectionInProgress = true;
+        UserUpdated?.Invoke(this, new UserUpdatedEventArgs
+        { Success = false, ShouldNavigate = true, UserId = ModelId });
+        await NavigateToUsersList(); //navigate to users list
     }
+
+    #region Helpers ------------------------------------------------------------
+    /// <summary>Navigate to the users list.</summary>
+    private async Task NavigateToUsersList()
+    { await _navigationService.NavigateToAsync(new NavigationConfig(NavigationConfig.Routes.Users)); }
+
+    /// <summary>Shows validation errors as a formatted message.</summary>
+    private async void ShowMessageErrorValidation()
+    {
+        var errors = GetAllErrors(); //get validation error in context
+        if (errors.Count > 0) await _messageService.ShowErrorAsync(string.Join("\n", errors));
+    }
+    #endregion ---------------------------------------------------------------------
 }
-
-#region Interfaces ------------------------------------------------------------
-public interface IUpdateUserVM
-{
-    /// <summary>Datos del usuario existente.</summary>
-    UserResultDto? Existing { get; }
-
-    /// <summary>Entrada de datos para actualizar el usuario.</summary>
-    UpdateUserInput Input { get; }
-
-    /// <summary>Indica si está cargando los datos del usuario.</summary>
-    bool IsLoading { get; }
-
-    /// <summary>Indica si el proceso de guardado está en curso.</summary>
-    bool IsSaving { get; }
-
-    /// <summary>Indica si la operación se completó exitosamente.</summary>
-    bool SaveSuccess { get; }
-
-    /// <summary>Carga los datos del usuario a editar.</summary>
-    Task<bool> LoadUserAsync(int userId, CancellationToken cancellationToken = default);
-
-    /// <summary>Ejecuta la actualización del usuario con los datos del Input.</summary>
-    Task<bool> UpdateUserAsync(CancellationToken cancellationToken = default);
-}
-#endregion ---------------------------------------------------------------------

@@ -7,6 +7,9 @@ namespace AppWeb.Client.Http;
 /// <summary> Provides shared, reusable extension methods for handling HttpResponseMessage instances. </summary>
 public static class HttpResponseExtensions
 {
+    // Instancia estática para compatibilidad con extensiones
+    private static readonly IApiErrorParser _errorParser = new ApiErrorParser();
+    
     /// <summary>
     /// Centralized handler for API responses. It checks for unsuccessful HTTP status codes
     /// and also inspects the JSON payload for GraphQL-specific errors, even on HTTP 200 OK responses.
@@ -16,12 +19,12 @@ public static class HttpResponseExtensions
     public static async Task<string> EnsureGraphQLSuccessAsync(this HttpResponseMessage response, CancellationToken ct = default)
     {
         var json = await response.Content.ReadAsStringAsync(ct); // Read the response content as a string
-        if (!response.IsSuccessStatusCode) throw new ApiException(response.StatusCode, ApiErrorParser.ParseErrors(json));
+        if (!response.IsSuccessStatusCode) throw new ApiException(response.StatusCode, _errorParser.ParseErrors(json));
         try
         {
             using var doc = JsonDocument.Parse(json);
             if (doc.RootElement.TryGetProperty("errors", out var errs) && errs.ValueKind == JsonValueKind.Array && errs.GetArrayLength() > 0)
-            { throw new ApiException(HttpStatusCode.OK, ApiErrorParser.ParseErrors(json)); }
+            { throw new ApiException(HttpStatusCode.OK, _errorParser.ParseErrors(json)); }
         }
         catch (JsonException)
         {

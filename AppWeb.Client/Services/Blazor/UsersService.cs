@@ -2,7 +2,7 @@
 using AppWeb.Shared.Inputs;
 using AppWeb.Shared.Dtos;
 
-namespace AppWeb.Client.Services;
+namespace AppWeb.Client.Services.Blazor;
 
 public class BlazorUsersService : IUsersService
 {

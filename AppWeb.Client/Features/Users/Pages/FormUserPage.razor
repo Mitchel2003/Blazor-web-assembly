@@ -3,11 +3,23 @@
 @page "/users/create"
 
 @using AppWeb.Client.Features.Users.Sections
+@using AppWeb.ViewModels.Features.Users
 @using MudBlazor
 
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IUpdateUserVM updateVM
+@inject ICreateUserVM createVM
+@implements IDisposable
+
 <PageTitle>
-    @if (Id.HasValue) { @(updateVM.IsLoading ? "Loading..." : updateVM.Existing is null ? $"User #{Id}" : $"Edit User #{updateVM.Existing.Id}") }
-    else { @("Create User") }
+    @if (Id.HasValue)
+    {
+        @(updateVM.IsLoading ? "Loading..." : $"Edit User #{updateVM.ModelId}")
+    }
+    else
+    {
+        @("Create User")
+    }
 </PageTitle>
 
 <div class="page-user-form">
@@ -16,13 +28,19 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">
-                        @if (Id.HasValue) { @(updateVM.IsLoading ? "Loading..." : updateVM.Existing is null ? $"User #{Id}" : $"Edit User #{updateVM.Existing.Id}") }
-                        else { @("Create User") }
+                        @if (Id.HasValue)
+                        {
+                            @(updateVM.IsLoading ? "Loading..." : $"Edit User #{updateVM.ModelId}")
+                        }
+                        else
+                        {
+                            @("Create User")
+                        }
                     </h1>
                     <p class="text-gray-500">Fill in the form and save the user</p>
                 </div>
                 <div class="mt-4 md:mt-0">
-                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="/users">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@NavigateBack">
                         Back to Users
                     </MudButton>
                 </div>
@@ -40,18 +58,54 @@
         }
         else
         {
-            <UserFormSection OnSubmit="@(async () => await updateVM.UpdateUserAsync())"
-                             ExistingUser="@updateVM.Existing"
-                             Success="@updateVM.SaveSuccess"
-                             Loading="@updateVM.IsSaving" 
-                             Input="@updateVM.Input"/>
+            <UserFormSection OnSubmit="@(async () => await updateVM.SaveCommand.ExecuteAsync(null))"
+                             Success="@updateVM.OperationSuccess"
+                             Loading="@updateVM.IsSaving"
+                             OnCancel="@NavigateBack"
+                             Input="@updateVM.Model" />
         }
     }
     else
     {
-        <UserFormSection OnSubmit="@(async () => await createVM.CreateUserAsync())"
-                         Success="@createVM.SaveSuccess"
+        <UserFormSection OnSubmit="@(async () => await createVM.SaveCommand.ExecuteAsync(null))"
+                         Success="@createVM.OperationSuccess"
                          Loading="@createVM.IsSaving"
-                         Input="@createVM.Input"/>
+                         OnCancel="@NavigateBack"
+                         Input="@createVM.Model" />
     }
 </div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    /// <summary>Initializes the page, subscribes to events and initializes the ViewModel</summary>
+    protected override async Task OnInitializedAsync()
+    {
+        // Subscribe to events, initialize the ViewModel
+        if (createVM is CreateUserVM createViewModel) { createViewModel.UserCreated += OnUserCreated; }
+        if (updateVM is UpdateUserVM updateViewModel) { updateViewModel.UserUpdated += OnUserUpdated; }
+        
+        // Initialize the appropriate ViewModel based on whether we have an ID
+        if (Id.HasValue) await updateVM.InitializeWithIdAsync(Id.Value);
+        else await createVM.InitializeAsync();
+    }
+
+    /// <summary>Handler for user created event</summary>
+    private void OnUserCreated(object sender, UserCreatedEventArgs e) { StateHasChanged(); }
+    
+    /// <summary>Handler for user updated event</summary>
+    private void OnUserUpdated(object sender, UserUpdatedEventArgs e) { StateHasChanged(); }
+
+    /// <summary>Navigate back using the ViewModel commands</summary>
+    private async Task NavigateBack()
+    {
+        if (Id.HasValue) await updateVM.NavigateBackCommand.ExecuteAsync(null);
+        else await createVM.NavigateBackCommand.ExecuteAsync(null);
+    }
+
+    public void Dispose()
+    { //Unsubscribe from events to prevent memory leaks
+        if (createVM is CreateUserVM createViewModel) { createViewModel.UserCreated -= OnUserCreated; }
+        if (updateVM is UpdateUserVM updateViewModel) { updateViewModel.UserUpdated -= OnUserUpdated; }
+    }
+}

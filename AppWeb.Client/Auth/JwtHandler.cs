@@ -8,7 +8,6 @@ public sealed class JwtHandler : DelegatingHandler
 {
     private readonly JwtAuthStateProvider _provider;
     public JwtHandler(AuthenticationStateProvider provider) => _provider = (JwtAuthStateProvider)provider;
-
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var token = await _provider.GetTokenAsync();

@@ -1,25 +1,40 @@
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @page "/auth/logout"
 
-@using AppWeb.Client.Auth
-@using Microsoft.AspNetCore.Components
-@inject JwtAuthStateProvider AuthStateProvider
-@inject NavigationManager NavigationManager
-@inject HttpClient HttpClient
+@using AppWeb.ViewModels.Features.Auth
+@implements IDisposable
+
+@inject ILogoutVM ViewModel
 
 <MudContainer Class="d-flex flex-column align-center justify-center" Style="height: 100vh;">
-    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
-    <MudText Class="mt-4">Cerrando sesión...</MudText>
+    @if (ViewModel.IsLoggingOut)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        <MudText Class="mt-4">Cerrando sesión...</MudText>
+    }
+    else if (ViewModel.LogoutCompleted)
+    {
+        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" />
+        <MudText Class="mt-4">Sesión cerrada correctamente.</MudText>
+        <MudText Class="mt-2">Redirigiendo...</MudText>
+    }
+    else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Large" />
+        <MudText Class="mt-4">Error al cerrar sesión.</MudText>
+        <MudText Class="mt-2">@ViewModel.ErrorMessage</MudText>
+    }
 </MudContainer>
 
 @code {
+    private void OnLogoutCompleted(object sender, LogoutCompletedEventArgs e) { StateHasChanged(); }
+
     protected override async Task OnInitializedAsync()
     {
-        try { await HttpClient.PostAsync("api/auth/logout", null); }
-        catch (Exception ex) { Console.WriteLine($"Error al cerrar sesión en el servidor: {ex.Message}"); }
-        finally
-        { //Limpiar el token de autenticación local
-            await AuthStateProvider.SetToken(null);
-            NavigationManager.NavigateTo("/auth/login");
-        }
+        if (ViewModel is LogoutVM logoutVM) logoutVM.LogoutCompletedEvent += OnLogoutCompleted!;
+        await ViewModel.InitializeAsync();
     }
+    
+    public void Dispose()
+    { if (ViewModel is LogoutVM logoutVM) logoutVM.LogoutCompletedEvent -= OnLogoutCompleted!; }
 }

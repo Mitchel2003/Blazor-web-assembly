@@ -19,7 +19,7 @@ public class AuthApiClient : IAuthApiClient
     {
         var loginDto = new LoginDto(input.Email, input.Password);
         var response = await _http.PostAsJsonAsync("api/auth/login", loginDto, cancellationToken);
-        // Verificar el status code y procesar errores
+        //verify status code and process errors
         if (!response.IsSuccessStatusCode)
         {
             var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -31,8 +31,15 @@ public class AuthApiClient : IAuthApiClient
             catch (JsonException){ throw new ApiException(response.StatusCode, new[] { errorContent }); }
         }
         
-        // Deserializar respuesta exitosa
+        //deserialize successful response
         return await response.Content.ReadFromJsonAsync<LoginResultDto>(cancellationToken);
+    }
+    
+    /// <summary>Logs out the current user by calling the server logout endpoint.</summary>
+    public async Task LogoutAsync(CancellationToken cancellationToken = default)
+    {
+        try { await _http.PostAsync("api/auth/logout", null, cancellationToken); }
+        catch (Exception) { /* Ignore errors, as we'll clear the local token anyway */ }
     }
     #endregion ---------------------------------------------------------------------
 
@@ -46,6 +53,10 @@ public class AuthApiClient : IAuthApiClient
 #region Interfaces ------------------------------------------------------------
 public interface IAuthApiClient
 {
+    /// <summary>Authenticates user with given credentials.</summary>
     Task<LoginResultDto?> LoginAsync(LoginInput input, CancellationToken cancellationToken = default);
+    
+    /// <summary>Logs out the current user.</summary>
+    Task LogoutAsync(CancellationToken cancellationToken = default);
 }
 #endregion ---------------------------------------------------------------------

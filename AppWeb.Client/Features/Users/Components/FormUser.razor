@@ -8,8 +8,8 @@
 <MudCard Class="rounded-lg overflow-hidden">
     <MudCardHeader>
         <div class="flex items-center">
-            <MudIcon Icon="@(Existing != null ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" Class="mr-2" />
-            <MudText Typo="Typo.h6">@(Existing != null ? "Edit User" : "Create User")</MudText>
+            <MudIcon Icon="@(IsEditMode ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" Class="mr-2" />
+            <MudText Typo="Typo.h6">@(IsEditMode ? "Edit User" : "Create User")</MudText>
         </div>
     </MudCardHeader>
 
@@ -25,7 +25,7 @@
             @if (Success)
             {
                 <MudAlert Severity="MudBlazor.Severity.Success" Variant="Variant.Filled" Class="mb-4">
-                    @(Existing != null ? "User updated successfully!" : "User created successfully!")
+                    @(IsEditMode ? "User updated successfully!" : "User created successfully!")
                 </MudAlert>
             }
 
@@ -39,7 +39,7 @@
                             <MudDivider Class="mb-4" />
                         </div>
 
-                        @if (Existing != null && Input is UpdateUserInput updateModel)
+                        @if (Input is UpdateUserInput updateModel)
                         {
                             <div>
                                 <MudTextField T="string" @bind-Value="updateModel.Username" For="@(() => updateModel.Username)" Label="Username" Placeholder="Enter username" Immediate="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Variant="Variant.Outlined" />
@@ -74,38 +74,36 @@
 
     <MudCardActions>
         <MudSpacer />
-        <MudButton Variant="Variant.Outlined"
-                   Href="/users"
-                   Disabled="@Loading">
+        <MudButton Variant="Variant.Outlined" OnClick="@OnCancel" Disabled="@Loading">
             Cancel
         </MudButton>
-        <MudButton Variant="Variant.Filled"
-                   Color="Color.Primary"
-                   OnClick="@HandleSubmitAsync"
-                   Disabled="@Loading">
-            @(Existing != null ? "Update User" : "Create User")
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@HandleSubmitAsync" Disabled="@Loading">
+            @(IsEditMode ? "Update User" : "Create User")
         </MudButton>
     </MudCardActions>
 </MudCard>
 
 @code {
     [Parameter] public object Input { get; set; } = default!;
-    [Parameter] public UserResultDto? Existing { get; set; }
     [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public bool Loading { get; set; }
     [Parameter] public bool Success { get; set; }
 
     private MudForm _form = new();
     private readonly CreateUserInputValidator _createValidator = new();
     private readonly UpdateUserInputValidator _updateValidator = new();
-    public IValidator CurrentValidator => Input is UpdateUserInput updateModel ? (IValidator)_updateValidator : _createValidator;
+    
+    private bool IsEditMode => Input is UpdateUserInput;
+    public IValidator CurrentValidator => Input is UpdateUserInput ? (IValidator)_updateValidator : _createValidator;
 
     private async Task HandleSubmitAsync()
     {
         await _form.Validate();
         ValidationResult fvResult = Input is UpdateUserInput updateModel
-            ? _updateValidator.Validate(updateModel) //Case update
+            ? _updateValidator.Validate(updateModel) 
             : _createValidator.Validate((CreateUserInput)Input);
+            
         if (!_form.IsValid || !fvResult.IsValid) return;
         await OnSubmit.InvokeAsync();
     }

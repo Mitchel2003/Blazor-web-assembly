@@ -6,7 +6,7 @@
 <section class="user-form-section mb-8">
     <div class="container mx-auto px-4">
         <FormUser OnSubmit="@OnSubmit"
-                  Existing="@ExistingUser"
+                  OnCancel="@OnCancel"
                   Loading="@Loading"
                   Success="@Success"
                   Input="@Input"/>
@@ -14,9 +14,9 @@
 </section>
 
 @code {
-    [Parameter] public UserResultDto? ExistingUser { get; set; }
     [Parameter] public object Input { get; set; } = default!;
     [Parameter] public EventCallback OnSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public bool Loading { get; set; }
     [Parameter] public bool Success { get; set; }
 }

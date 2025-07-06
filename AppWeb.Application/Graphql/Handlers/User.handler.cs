@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using AppWeb.Domain.Interfaces;
 using AppWeb.Application.Core;
 using AppWeb.Domain.Models;
@@ -37,16 +38,33 @@ public sealed class GetUsersByEmailHandler : IRequestHandler<GetUsersByEmail, IE
 public sealed class CreateUserHandler : IRequestHandler<CreateUser, User>
 {
     private readonly IUserRepository _repo;
-    public CreateUserHandler(IUserRepository repo) => _repo = repo;
-    public async Task<User> Handle(CreateUser request, CancellationToken cancellationToken) => await _repo.CreateAsync(request.Input);
+    private readonly IPasswordHasher<string> _hasher;
+    public CreateUserHandler(IUserRepository repo, IPasswordHasher<string> hasher)
+    { _repo = repo; _hasher = hasher; }
+
+    public async Task<User> Handle(CreateUser request, CancellationToken cancellationToken)
+    { //Hash the incoming plaintext password before persisting the new user, auth by hash.
+        var hashedPwd = _hasher.HashPassword(request.Input.Email, request.Input.Password);
+        var dto = request.Input with { Password = hashedPwd };
+        return await _repo.CreateAsync(dto);
+    }
 }
 
 /** Implements the IRequestHandler interface for the UpdateUser request. */
 public sealed class UpdateUserHandler : IRequestHandler<UpdateUser, User>
 {
     private readonly IUserRepository _repo;
-    public UpdateUserHandler(IUserRepository repo) => _repo = repo;
-    public async Task<User> Handle(UpdateUser request, CancellationToken cancellationToken) => await _repo.UpdateAsync(request.Id, request.Input);
+    private readonly IPasswordHasher<string> _hasher;
+    public UpdateUserHandler(IUserRepository repo, IPasswordHasher<string> hasher)
+    { _repo = repo; _hasher = hasher; }
+
+    public async Task<User> Handle(UpdateUser request, CancellationToken cancellationToken)
+    { //If client provided a plaintext password, hash it; otherwise keep the existing.
+        string pass = request.Input.Password; //heuristic: Identity hashes are >60 chars
+        if (!string.IsNullOrWhiteSpace(pass)) pass = _hasher.HashPassword(request.Input.Email, pass);
+        var dto = request.Input with { Password = pass };
+        return await _repo.UpdateAsync(request.Id, dto);
+    }
 }
 
 /** Implements the IRequestHandler interface for the DeleteUser request. */

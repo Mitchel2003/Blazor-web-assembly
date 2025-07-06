@@ -6,26 +6,30 @@
         <Found Context="routeData">
             @{
                 var isLoginPage = routeData.PageType.Name.Contains("Login");
+                var isRegisterPage = routeData.PageType.Name.Contains("FormUserPage") &&
+                                     !routeData.RouteValues.ContainsKey("Id");
                 
-                if (isLoginPage)
+                if (isLoginPage || isRegisterPage)
                 {
-                    <AuthGuard RedirectAuthenticatedFromLogin="true" DashboardPath="/">
+                    <AuthGuard RedirectAuthenticatedFromLogin="@isLoginPage" DashboardPath="/">
                         <RouteView RouteData="routeData" DefaultLayout="typeof(Shared.MainLayout)" />
                     </AuthGuard>
                 }
                 else
                 {
-                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(Shared.MainLayout)">
-                        <NotAuthorized>
-                            <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center" Style="height: 100vh;">
-                                <MudPaper Elevation="3" Class="pa-8 ma-2">
-                                    <MudText Typo="Typo.h5" Class="mb-4">Not Authorized</MudText>
-                                    <MudText>You are not authorized to access this resource.</MudText>
-                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/auth/login" Class="mt-4">Login</MudButton>
-                                </MudPaper>
-                            </MudContainer>
-                        </NotAuthorized>
-                    </AuthorizeRouteView>
+                    <AuthGuard RequireAuthentication="true">
+                        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="typeof(Shared.MainLayout)">
+                            <NotAuthorized>
+                                <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex justify-center align-center" Style="height: 100vh;">
+                                    <MudPaper Elevation="3" Class="pa-8 ma-2">
+                                        <MudText Typo="Typo.h5" Class="mb-4">Not Authorized</MudText>
+                                        <MudText>You are not authorized to access this resource.</MudText>
+                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/auth/login" Class="mt-4">Login</MudButton>
+                                    </MudPaper>
+                                </MudContainer>
+                            </NotAuthorized>
+                        </AuthorizeRouteView>
+                    </AuthGuard>
                 }
             }
             <FocusOnNavigate RouteData="routeData" Selector="h1" />

@@ -1,67 +1,110 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using AppWeb.ViewModels.Core.Services;
+using AppWeb.ViewModels.Core.Factory;
+using CommunityToolkit.Mvvm.Input;
 using AppWeb.ViewModels.Core.Base;
 using AppWeb.Shared.Inputs;
 
 namespace AppWeb.ViewModels.Features.Users;
 
-/// <summary>
-/// ViewModel para la creación de usuarios.
-/// Mantiene responsabilidad única para el caso de uso de creación.
-/// </summary>
-public partial class CreateUserVM : ViewModelBase, ICreateUserVM
+/// <summary>ViewModel for creating new users.</summary>
+public partial class CreateUserVM : ViewModelCrud<CreateUserInput, int>, ICreateUserVM
 {
-    private readonly INavigationService _navigationService;
-    private readonly IMessageService _messageService;
     private readonly IUsersService _usersService;
+    private readonly IMessageService _messageService;
+    private readonly INavigationService _navigationService;
 
-    [ObservableProperty] private CreateUserInput input = new();
-    [ObservableProperty] private bool saveSuccess;
-    [ObservableProperty] private bool isSaving;
+    [ObservableProperty] private bool _showPassword;
+    [ObservableProperty] private bool _redirectionInProgress;
+    public event EventHandler<UserCreatedEventArgs>? UserCreated;
 
-    public CreateUserVM(IUsersService usersService, INavigationService navigationService, IMessageService messageService)
+    public CreateUserVM(IUsersService usersService, IMessageService messageService, INavigationService navigationService, IModelFactory modelFactory)
+        : base(modelFactory, messageService)
     {
+        Title = "Create User";
         _usersService = usersService;
-        _navigationService = navigationService;
         _messageService = messageService;
+        _navigationService = navigationService;
     }
 
-    /// <summary>Ejecuta el proceso de creación de usuario.</summary>
-    public async Task<bool> CreateUserAsync(CancellationToken cancellationToken = default)
+    [RelayCommand]
+    /// <summary>Toggles password visibility.</summary>
+    private async Task TogglePasswordVisibilityAsync()
+    { ShowPassword = !ShowPassword; await Task.CompletedTask; }
+
+    /// <summary>Initializes the ViewModel with default values.</summary>
+    public override async Task InitializeAsync(CancellationToken cancellationToken = default)
+    { //reset success state on initialization
+        OperationSuccess = false;
+        RedirectionInProgress = false;
+        await base.InitializeAsync(cancellationToken);
+        IsNew = true; //ensure this is marked as a new entity
+        Model.IsActive = true; //set default values
+    }
+
+    /// <summary>Implementation for saving a new user.</summary>
+    protected override async Task<bool> OnSaveAsync()
     {
-        if (IsSaving) return false;
         try
         {
-            IsSaving = true;
-            SaveSuccess = false;
-            var result = await _usersService.CreateUserAsync(Input, cancellationToken);
-            if (result == null) { await _messageService.ShowErrorAsync("Error al crear usuario"); return false; }
-            await _messageService.ShowSuccessAsync("Usuario creado exitosamente");
-            SaveSuccess = true;
-            
-            //Delay to allow showing success message
-            await Task.Delay(1500, cancellationToken);
-            await _navigationService.NavigateToAsync("/users");
+            var result = await _usersService.CreateUserAsync(Model);
+            if (result == null) { await _messageService.ShowErrorAsync("Error creating user"); return false; }
+            await _messageService.ShowSuccessAsync("User created successfully");
+            ModelId = result.Id; //set the model ID from the result, if applicable
+            UserCreated?.Invoke(this, new UserCreatedEventArgs //notify subscribers
+            { Success = true, UserId = result.Id, Username = result.Username ?? Model.Username });
+
+            RedirectionInProgress = true; //initiate redirection
+            await Task.Delay(800); //to allow the success message
+            //verify if the user is authenticated, if not, navigate to the login
+            var isAuthenticated = await _navigationService.IsAuthenticatedAsync();
+            if (isAuthenticated) await NavigateToUsersAsync();
+            else await NavigateToLoginAsync();
             return true;
         }
-        catch (Exception ex) { await _messageService.ShowErrorAsync($"Error inesperado: {ex.Message}"); return false; }
-        finally { IsSaving = false; }
+        catch (Exception ex) { await _messageService.ShowErrorAsync($"Unexpected error: {ex.Message}"); return false; }
     }
+
+    [RelayCommand]
+    /// <summary>Navigate back with confirmation if changes are pending.</summary>
+    public async Task NavigateBackAsync()
+    {
+        if (RedirectionInProgress) return;
+        if (IsModified)
+        { //check for unsaved changes
+            var confirm = await _messageService.ConfirmAsync("Discard Changes", "You have unsaved changes. Are you sure you want to discard them?");
+            if (!confirm) return;
+        }
+
+        RedirectionInProgress = true;
+        //notify subscribers about navigation
+        UserCreated?.Invoke(this, new UserCreatedEventArgs
+        { Success = false, ShouldNavigate = true });
+        //verify if the user is authenticated, handle the navigation
+        var isAuthenticated = await _navigationService.IsAuthenticatedAsync();
+        //navigate to the users list or the login page, if not authenticated
+        if (isAuthenticated) await NavigateToUsersAsync();
+        else await NavigateToLoginAsync();
+    }
+
+    #region Helpers ------------------------------------------------------------
+    /// <summary>Navigate to the users list.</summary>
+    private async Task NavigateToUsersAsync()
+    { await _navigationService.NavigateToAsync(new NavigationConfig(NavigationConfig.Routes.Users)); }
+
+    /// <summary>Navigate to the login page.</summary>
+    private async Task NavigateToLoginAsync()
+    { await _navigationService.NavigateToAsync(new NavigationConfig(NavigationConfig.Routes.Login)); }
+
+    /// <summary>Required by ViewModelCrud but not used for Create operations</summary>
+    public override Task<CreateUserInput> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    { return Task.FromResult(_modelFactory.Create<CreateUserInput>()); } //Not applicable for creation, but required by base class
+
+    /// <summary>Shows validation errors as a formatted message.</summary>
+    private async void ShowMessageErrorValidation()
+    {
+        var errors = GetAllErrors(); //get validation error in context
+        if (errors.Count > 0) await _messageService.ShowErrorAsync(string.Join("\n", errors));
+    }
+    #endregion ---------------------------------------------------------------------
 }
-
-#region Interfaces ------------------------------------------------------------
-public interface ICreateUserVM
-{
-    /// <summary>Entrada de datos para crear un usuario.</summary>
-    CreateUserInput Input { get; }
-
-    /// <summary>Indica si el proceso de guardado está en curso.</summary>
-    bool IsSaving { get; }
-
-    /// <summary>Indica si la operación se completó exitosamente.</summary>
-    bool SaveSuccess { get; }
-
-    /// <summary>Ejecuta la creación del usuario con los datos del Input.</summary>
-    Task<bool> CreateUserAsync(CancellationToken cancellationToken = default);
-}
-#endregion ---------------------------------------------------------------------

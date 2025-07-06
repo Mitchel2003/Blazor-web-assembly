@@ -1,39 +1,30 @@
-using AppWeb.ViewModels.Core.Services;
-using AppWeb.Client.Services.Blazor;
-using AppWeb.Client.Services;
 using AppWeb.Client.Helpers;
 using MudBlazor.Services;
 
 namespace AppWeb.Client;
 
-/// <summary>
-/// Registers all client-side services, HTTP clients, and feature ViewModels automatically.
-/// Mirrors the AddApplication / AddInfrastructure helpers on the server side.
-/// </summary>
+/// <summary>Configures dependency injection for client-side services.</summary>
 public static class DependencyInjection
 {
-    /// <summary>Adds client-side services.</summary>
-    /// <param name="services">DI collection.</param>
-    /// <param name="apiBase">Optional base address for <see cref="HttpClient"/>.</param>
+    /// <summary>Adds all client-side services, HTTP clients, and ViewModels.</summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="apiBase">Optional base address for API clients.</param>
+    /// <returns>The service collection with client services registered.</returns>
     public static IServiceCollection AddClient(this IServiceCollection services, Uri? apiBase = null)
     {
-        services.AddMudServices();
-        services.AddAuthorizationCore();
-        services.AddCascadingAuthenticationState();
-        services.AddScoped<Errors.ErrorNotifier>();
+        services.AddMudServices(); //Add UI framework services (singleton por defecto)
         
-        services.AddAuthServices();
-        services.AddHttpClients(apiBase);
-
-        // Registrar implementaciones específicas de Blazor
-        services.AddScoped<INavigationService, BlazorNavigationService>();
-        services.AddScoped<IMessageService, BlazorMessageService>();
-        services.AddScoped<IUsersService, BlazorUsersService>();
-
-        // Registrar ViewModels compartidos desde la biblioteca AppWeb.ViewModels
-        // Importante: usar el namespace completo para evitar ambigüedades
+        //Add all client services using our centralized extension methods
+        // Esto registra servicios con los ciclos de vida apropiados:
+        // - Singleton: para servicios sin estado compartidos entre todos los usuarios
+        // - Scoped: para servicios con estado por sesión de usuario
+        // - Transient: para servicios ligeros que se crean bajo demanda
+        services.AddClientServices(apiBase);
+        
+        // Register ViewModels from AppWeb.ViewModels
+        // Los ViewModels se registran como Transient para que cada componente
+        // reciba su propia instancia y evitar problemas de estado compartido
         ViewModels.DependencyInjection.AddViewModels(services);
-        
         return services;
     }
 }
