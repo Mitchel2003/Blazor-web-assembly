@@ -83,7 +83,7 @@ public partial class LoginVM : ViewModelCrud<LoginInput, int>, ILoginVM
             if (returnUrl.StartsWith("/")) returnUrl = returnUrl.Substring(1);
             await _navigationService.NavigateToAsync(returnUrl);
         } //navigate to home with force reload for fresh state
-        else { await _navigationService.NavigateToAsync(new NavigationConfig(NavigationConfig.Routes.Home).WithForceLoad(true)); }
+        else { await _navigationService.NavigateToAsync(new NavigationConfig(NavigationConfig.Routes.Home)); }
     }
 
     #region Helpers ------------------------------------------------------------
