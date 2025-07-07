@@ -5,7 +5,9 @@
 @using AppWeb.Client.Features.Users.Sections
 @using Microsoft.AspNetCore.Authorization
 @using AppWeb.Client.Shared.Ui.Skeletons
-@inject TableUserPageVM vm
+@using AppWeb.ViewModels.Features.Users
+
+@inject ITableUsersPageVM vm
 
 <PageTitle>Users</PageTitle>
 
@@ -18,7 +20,7 @@
                     <p class="text-gray-500">Manage platform users</p>
                 </div>
                 <div class="mt-4 md:mt-0">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="vm.HandleAddUser">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await vm.AddUserCommand.ExecuteAsync()">
                         Add User
                     </MudButton>
                 </div>
@@ -36,13 +38,15 @@
     {
         <UserTableSection Users="vm.Users"
                           Loading="vm.IsLoading"
-                          OnRefresh="vm.LoadAsync"
-                          OnAdd="vm.HandleAddUser"
-                          OnView="vm.HandleViewUser"
-                          OnEdit="vm.HandleEditUser"
-                          OnDelete="vm.HandleDeleteUser"
-                          OnBulkDelete="vm.HandleBulkDeleteUsers" />
+                          OnRefresh="async () => await vm.LoadUsersCommand.ExecuteAsync()"
+                          OnAdd="async () => await vm.AddUserCommand.ExecuteAsync()"
+                          OnView="async (user) => await vm.ViewUserCommand.ExecuteAsync(user)"
+                          OnEdit="async (user) => await vm.EditUserCommand.ExecuteAsync(user)"
+                          OnDelete="async (user) => await vm.DeleteUserCommand.ExecuteAsync(user)"
+                          OnBulkDelete="async (users) => await vm.BulkDeleteUsersCommand.ExecuteAsync(users)" />
     }
 </div>
 
-@code { protected override async Task OnInitializedAsync() { await vm.LoadAsync(); } }
+@code {
+    protected override async Task OnInitializedAsync() { await vm.LoadUsersCommand.ExecuteAsync(); }
+}

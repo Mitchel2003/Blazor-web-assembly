@@ -12,19 +12,22 @@ public static class DependencyInjection
     /// <returns>The service collection with client services registered.</returns>
     public static IServiceCollection AddClient(this IServiceCollection services, Uri? apiBase = null)
     {
-        services.AddMudServices(); //Add UI framework services (singleton por defecto)
+        services.AddMudServices(); //Add UI framework services (singleton by default)
         
         //Add all client services using our centralized extension methods
-        // Esto registra servicios con los ciclos de vida apropiados:
-        // - Singleton: para servicios sin estado compartidos entre todos los usuarios
-        // - Scoped: para servicios con estado por sesión de usuario
-        // - Transient: para servicios ligeros que se crean bajo demanda
+        // This registers services with appropriate lifecycles:
+        // - Singleton: for stateless services shared across all users
+        // - Scoped: for stateful services per user session
+        // - Transient: for lightweight services created on demand
         services.AddClientServices(apiBase);
         
         // Register ViewModels from AppWeb.ViewModels
-        // Los ViewModels se registran como Transient para que cada componente
-        // reciba su propia instancia y evitar problemas de estado compartido
-        ViewModels.DependencyInjection.AddViewModels(services);
+        // ViewModels are registered as Scoped to maintain state within a user session
+        // while avoiding shared state issues between different users
+        AppWeb.ViewModels.DependencyInjection.AddViewModels(services);
+        
+        // No need to register client-side ViewModels as they're now in AppWeb.ViewModels project
+        
         return services;
     }
 }

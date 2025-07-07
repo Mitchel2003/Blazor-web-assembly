@@ -13,49 +13,40 @@ public static class DependencyInjection
     /// <param name="services">The service collection.</param>
     /// <returns>The service collection with ViewModels registered.</returns>
     public static IServiceCollection AddViewModels(this IServiceCollection services)
-    { //Register ModelFactory as Singleton since it is stateless and thread-safe
-        RegisterModelFactory(services);
-
-        //Register ViewModels as Transient services, so that each
-        //component receives a new instance and avoids shared state problems
-        services.AddTransient<ILoginVM, LoginVM>();
-        services.AddTransient<ILogoutVM, LogoutVM>();
-        services.AddTransient<ICreateUserVM, CreateUserVM>();
-        services.AddTransient<IUpdateUserVM, UpdateUserVM>();
+    {
+        services.AddViewModelsFromAssembly(Assembly.GetExecutingAssembly());
+        
+        //Register auth and user ViewModels explicitly
+        services.AddScoped<ILoginVM, LoginVM>();
+        services.AddScoped<ILogoutVM, LogoutVM>();
+        services.AddScoped<ICreateUserVM, CreateUserVM>();
+        services.AddScoped<IUpdateUserVM, UpdateUserVM>();
+        services.AddScoped<ITableUserVM, TableUserVM>();
+        services.AddScoped<ITableUsersPageVM, TableUsersPageVM>();
         return services;
     }
     
     /// <summary>Adds all ViewModels from the specified assembly to the specified <see cref="IServiceCollection"/>.</summary>
     public static IServiceCollection AddViewModelsFromAssembly(this IServiceCollection services, Assembly assembly)
     { //Register core services, important for platform-agnostic ViewModels
-        RegisterModelFactory(services);
-        
+        services.AddViewModelsCore();
+
         //Find all interfaces that represent ViewModels
-        var viewModelInterfaces = assembly.GetTypes()
-            .Where(t => t.IsInterface && t.Name.EndsWith("VM"))
-            .ToDictionary(i => i, i => assembly.GetTypes().FirstOrDefault(t => 
-                !t.IsInterface && !t.IsAbstract && i.IsAssignableFrom(t)));
-        
-        //Register all ViewModel implementations as Transient
+        var viewModelInterfaces = assembly.GetTypes().Where(t => t.IsInterface && t.Name.EndsWith("VM"))
+            .ToDictionary(i => i, i => assembly.GetTypes().FirstOrDefault(t => !t.IsInterface && !t.IsAbstract && i.IsAssignableFrom(t)));
+
+        //Register the ViewModel with the interface, ensuring it is scoped
         foreach (var (vmInterface, vmImplementation) in viewModelInterfaces)
-        { if (vmImplementation != null) { services.AddTransient(vmInterface, vmImplementation); } }
+        { if (vmImplementation != null) services.AddScoped(vmInterface, vmImplementation); }
         return services;
     }
     
     /// <summary>Adds all services needed for platform-agnostic ViewModels.</summary>
     public static IServiceCollection AddViewModelsCore(this IServiceCollection services)
-    { //Register only core services, important for platform-agnostic ViewModels
-        RegisterModelFactory(services);
-        return services;
-    }
-
-    #region Helpers ------------------------------------------------------------
-    /// <summary>Registers the IModelFactory as a Singleton using the DefaultModelFactory instance.</summary>
-    private static void RegisterModelFactory(IServiceCollection services)
     { //Get the singleton instance of the ModelFactory
         var factory = DefaultModelFactory.Instance;
-        ModelFactoryProvider.Initialize(factory); //Initialize the static provider
-        services.AddSingleton<IModelFactory>(_ => factory); //Register in the DI container
+        ModelFactoryProvider.Initialize(factory);
+        services.AddSingleton<IModelFactory>(_ => factory);
+        return services; //Register in the DI container and return collection
     }
-    #endregion ---------------------------------------------------------------------
 }
