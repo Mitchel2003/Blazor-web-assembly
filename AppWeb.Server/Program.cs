@@ -1,8 +1,6 @@
-using AppWeb.Server.Components;
-using AppWeb.Client.Services;
+using AppWeb.SharedClient.Services.Graphql;
 using AppWeb.Infrastructure;
 using AppWeb.Application;
-using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,42 +10,59 @@ builder.Configuration
     .AddUserSecrets<Program>() //Enables user-secrets
     .AddEnvironmentVariables();
 
-builder.Services.AddMudServices(); //Add MudBlazor services
-builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
-builder.Services.AddControllersWithViews(); //keeps compatibility cookie-auth
+// Keep MVC controllers for API endpoints
+// This maintains compatibility with cookie-based authentication
+// and allows traditional REST API endpoints alongside GraphQL
+builder.Services.AddControllersWithViews();
 
-var apiBase = new Uri(builder.Configuration["ApiBase"] ?? "https://localhost:5001/"); //HTTP clients for prerendered components
-builder.Services.AddHttpClient<IUsersApiClient, UsersApiClient>(c => c.BaseAddress = apiBase); //suggested system more reusable
+// Configure HTTP clients for server-side API access
+// These are used when server-side components need to access APIs
+var apiBase = new Uri(builder.Configuration["ApiBase"] ?? "https://localhost:5001/");
+builder.Services.AddHttpClient<IUsersApiClient, UsersApiClient>(c => c.BaseAddress = apiBase);
 
-builder.Services.AddApplication(); // Application layer services and configurations
-builder.Services.AddInfrastructure(builder.Configuration); //GraphQL, Repositories, etc.
+// Register core application services
+// These provide business logic functionality
+builder.Services.AddApplication();
+
+// Register infrastructure services
+// These provide data access and external service integrations
+builder.Services.AddInfrastructure(builder.Configuration);
+
+//Configure CORS to allow the client application to access the API
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(builder.Configuration["AllowedOrigins"]?.Split(',') ?? new[] { "https://localhost:5002" })
+              .AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) { app.UseWebAssemblyDebugging(); }
-else { app.UseExceptionHandler("/Error", createScopeForErrors: true); app.UseHsts(); }
+//Configure the HTTP request pipeline based on environment
+if (app.Environment.IsDevelopment()) { app.UseDeveloperExceptionPage(); } //Enable developer exception page
+else { app.UseExceptionHandler("/error"); app.UseHsts(); } //Enable HTTPS Strict Transport Security
 
+//Standard middleware configuration
 app.UseHttpsRedirection();
-app.UseStaticFiles(); //Static content (wwwroot) first
-app.UseRouting(); //Routing middleware
+app.UseStaticFiles(); //Serve static content from wwwroot first
+app.UseRouting(); //Configure routing middleware
 
-//Authentication
+//Enable CORS before authentication middleware
+app.UseCors();
+
+//Authentication middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
-//Middleware WASM prerendering
-app.UseAntiforgery();
-app.MapStaticAssets();
+//Map GraphQL endpoint
+//This provides the primary API for client-side data access
+app.MapGraphQL("/graphql");
 
-//Razor Components (WASM+CSR)
-app.MapRazorComponents<App>()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(AppWeb.Client._Imports).Assembly);
-
-app.MapGraphQL("/graphql"); //GraphQL endpoint before conventional routes (give it priority)
-//Use a more specific pattern for the Auth controller to avoid conflicts with Blazor routes
+//Map conventional controller routes
+//Use specific patterns to avoid conflicts with Blazor routes
 app.MapControllerRoute(name: "auth", pattern: "api/auth/{action=Login}/{id?}", defaults: new { controller = "Auth" });
-app.MapControllerRoute(name: "default", pattern: "api/{controller=Home}/{action=Index}/{id?}"); //Other conventional controller routes
+app.MapControllerRoute(name: "default", pattern: "api/{controller=Home}/{action=Index}/{id?}"); //Other API endpoints
 
 app.Run();

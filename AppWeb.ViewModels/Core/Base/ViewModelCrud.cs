@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using AppWeb.ViewModels.Core.Services;
+using AppWeb.Shared.Services.Contracts;
 using AppWeb.ViewModels.Core.Factory;
 using CommunityToolkit.Mvvm.Input;
 
@@ -35,7 +35,7 @@ public abstract partial class ViewModelCrud<TModel, TIdType> : ValidatableViewMo
         SaveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
         ValidateCommand = new AsyncRelayCommand(ValidateModelAsync);
     }
-    
+
     /// <summary>Called after model is loaded successfully.</summary>
     protected virtual void OnModelLoaded() { } //not implemented yet
     

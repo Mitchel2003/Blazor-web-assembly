@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Components.Authorization
+@using AppWeb.SharedClient.Auth
 @using MudBlazor.Utilities
 @using AppWeb.Client.Auth
 
@@ -107,7 +108,7 @@
     private void ToggleDrawer() { _drawerOpen = !_drawerOpen; }
     private void ToggleDarkMode() { _isDarkMode = !_isDarkMode; }
     
-    private void OnAuthStateChanged(Task<AuthenticationState> _)
+    private void OnAuthStateChanged(object? sender, bool isAuthenticated)
     { InvokeAsync(StateHasChanged); }
     
     private async Task HandleLogout()

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using AppWeb.ViewModels.Core.Services;
+using AppWeb.ViewModels.Features.Contracts;
+using AppWeb.Shared.Services.Contracts;
 using AppWeb.ViewModels.Core.Factory;
 using CommunityToolkit.Mvvm.Input;
 using AppWeb.ViewModels.Core.Base;

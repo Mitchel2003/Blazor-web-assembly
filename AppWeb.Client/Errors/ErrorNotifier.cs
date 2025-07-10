@@ -1,3 +1,4 @@
+using AppWeb.SharedClient.Errors;
 using MudBlazor;
 
 namespace AppWeb.Client.Errors;

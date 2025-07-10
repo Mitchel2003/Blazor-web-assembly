@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
 
@@ -35,19 +35,35 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         finally { IsBusy = false; }
     }
 
+    // Navigation lifecycle methods for MAUI compatibility
+    /// <summary>Called when navigating to a page with parameters.</summary>
+    public virtual Task OnNavigatingToAsync(object parameter) => Task.CompletedTask;
+
+    /// <summary>Called when navigated to a page.</summary>
+    public virtual Task OnNavigatedToAsync() => Task.CompletedTask;
+
+    /// <summary>Called when navigating away from a page.</summary>
+    public virtual Task OnNavigatedFromAsync() => Task.CompletedTask;
+
+    /// <summary>Called when the page is disappearing.</summary>
+    public virtual Task OnDisappearing() => Task.CompletedTask;
+
     #region Helpers ------------------------------------------------------------
 
     /// <summary>Releases all resources used by the ViewModel.</summary>
     public virtual void Dispose()
     {
         if (_isDisposed) return;
-        OnDispose(true); _isDisposed = true;
-        GC.SuppressFinalize(this); //claan memory
+        _isDisposed = true;
+        OnDispose();
+        GC.SuppressFinalize(this);
     }
 
-    /// <summary>Override to implement custom disposal logic.</summary>
-    protected virtual void OnDispose(bool disposing) { } //not implemented
-    /// <summary>Override this method to perform custom initialization logic.</summary>
-    protected virtual Task OnInitializeAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    /// <summary>Override to release resources during disposal.</summary>
+    protected virtual void OnDispose() { }
+
+    /// <summary>Initialization logic for the ViewModel.</summary>
+    protected virtual Task OnInitializeAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
     #endregion ---------------------------------------------------------------------
 }

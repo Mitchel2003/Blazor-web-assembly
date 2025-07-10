@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using AppWeb.ViewModels.Core.Services;
+using AppWeb.ViewModels.Features.Contracts;
+using AppWeb.Shared.Services.Contracts;
 using AppWeb.ViewModels.Core.Factory;
 using CommunityToolkit.Mvvm.Input;
 using AppWeb.ViewModels.Core.Base;
@@ -16,7 +17,7 @@ public partial class LoginVM : ViewModelCrud<LoginInput, int>, ILoginVM
 
     [ObservableProperty] private bool _showPassword;
     [ObservableProperty] private bool _redirectionInProgress;
-    public event EventHandler<LoginSuccessEventArgs>? LoginSuccessful;
+    public event EventHandler<LoginSuccessEventArgs>? LoginCompleted;
 
     public LoginVM(IAuthService authService, IMessageService messageService, INavigationService navigationService, IModelFactory modelFactory)
         : base(modelFactory)
@@ -57,8 +58,8 @@ public partial class LoginVM : ViewModelCrud<LoginInput, int>, ILoginVM
             if (loginResult == null) { await _messageService.ShowErrorAsync("Login failed"); return; }
             OperationSuccess = true; // Set login success state
 
-            //Notify subscribers about successful login
-            LoginSuccessful?.Invoke(this, new LoginSuccessEventArgs
+            //Notify subscribers about completed login
+            LoginCompleted?.Invoke(this, new LoginSuccessEventArgs
             {
                 Token = loginResult.Token,
                 Username = loginResult.Username ?? Model.Email,

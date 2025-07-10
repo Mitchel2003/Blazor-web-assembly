@@ -3,6 +3,7 @@
 @page "/users/create"
 
 @using AppWeb.Client.Features.Users.Sections
+@using AppWeb.ViewModels.Features.Contracts
 @using AppWeb.ViewModels.Features.Users
 @using MudBlazor
 
@@ -82,8 +83,8 @@
     protected override async Task OnInitializedAsync()
     {
         // Subscribe to events, initialize the ViewModel
-        if (createVM is CreateUserVM createViewModel) { createViewModel.UserCreated += OnUserCreated; }
-        if (updateVM is UpdateUserVM updateViewModel) { updateViewModel.UserUpdated += OnUserUpdated; }
+        if (createVM is CreateUserVM createViewModel) { createViewModel.UserCreated += OnUserCreated!; }
+        if (updateVM is UpdateUserVM updateViewModel) { updateViewModel.UserUpdated += OnUserUpdated!; }
         
         // Initialize the appropriate ViewModel based on whether we have an ID
         if (Id.HasValue) await updateVM.InitializeWithIdAsync(Id.Value);
@@ -105,7 +106,7 @@
 
     public void Dispose()
     { //Unsubscribe from events to prevent memory leaks
-        if (createVM is CreateUserVM createViewModel) { createViewModel.UserCreated -= OnUserCreated; }
-        if (updateVM is UpdateUserVM updateViewModel) { updateViewModel.UserUpdated -= OnUserUpdated; }
+        if (createVM is CreateUserVM createViewModel) { createViewModel.UserCreated -= OnUserCreated!; }
+        if (updateVM is UpdateUserVM updateViewModel) { updateViewModel.UserUpdated -= OnUserUpdated!; }
     }
 }

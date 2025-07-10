@@ -1,11 +1,12 @@
 @attribute [Authorize]
 @page "/users"
 
-@using Microsoft.AspNetCore.Components.Authorization
 @using AppWeb.Client.Features.Users.Sections
-@using Microsoft.AspNetCore.Authorization
 @using AppWeb.Client.Shared.Ui.Skeletons
+@using AppWeb.ViewModels.Features.Contracts
 @using AppWeb.ViewModels.Features.Users
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject ITableUsersPageVM vm
 
@@ -20,7 +21,7 @@
                     <p class="text-gray-500">Manage platform users</p>
                 </div>
                 <div class="mt-4 md:mt-0">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="async () => await vm.AddUserCommand.ExecuteAsync()">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="vm.AddUserCommand.ExecuteAsync">
                         Add User
                     </MudButton>
                 </div>
@@ -38,8 +39,8 @@
     {
         <UserTableSection Users="vm.Users"
                           Loading="vm.IsLoading"
-                          OnRefresh="async () => await vm.LoadUsersCommand.ExecuteAsync()"
-                          OnAdd="async () => await vm.AddUserCommand.ExecuteAsync()"
+                          OnAdd="vm.AddUserCommand.ExecuteAsync"
+                          OnRefresh="vm.LoadUsersCommand.ExecuteAsync"
                           OnView="async (user) => await vm.ViewUserCommand.ExecuteAsync(user)"
                           OnEdit="async (user) => await vm.EditUserCommand.ExecuteAsync(user)"
                           OnDelete="async (user) => await vm.DeleteUserCommand.ExecuteAsync(user)"
@@ -48,5 +49,6 @@
 </div>
 
 @code {
-    protected override async Task OnInitializedAsync() { await vm.LoadUsersCommand.ExecuteAsync(); }
+    protected override async Task OnInitializedAsync()
+    { await vm.LoadUsersCommand.ExecuteAsync(null); }
 }

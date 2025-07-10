@@ -4,7 +4,7 @@
 @typeparam TModel
 
 @code {
-    [Parameter, EditorRequired] public IValidator<TModel> Validator { get; set; } = default!;
+    [Parameter, EditorRequired] public IValidator Validator { get; set; } = default!;
     [CascadingParameter] private EditContext? CurrentEditContext { get; set; }
     private ValidationMessageStore? _messages;
 
@@ -22,7 +22,8 @@
         _messages.Clear();
         if (CurrentEditContext.Model is TModel model)
         {
-            var result = Validator.Validate(model);
+            var context = new ValidationContext<TModel>(model);
+            var result = Validator.Validate(context);
             if (!result.IsValid)
             {
                 foreach (var error in result.Errors)

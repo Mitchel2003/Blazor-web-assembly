@@ -1,6 +1,5 @@
 namespace AppWeb.ViewModels.Core.Factory;
 
-#region Interfaces ------------------------------------------------------------
 /// <summary>
 /// Factory interface for creating model objects without direct instantiation in ViewModels.
 /// This abstraction allows ViewModels to be completely independent from domain/DTOs implementation.
@@ -27,4 +26,3 @@ public interface IModelFactory
         where TModel : class, new()
         where TSource : class;
 }
-#endregion ---------------------------------------------------------------------

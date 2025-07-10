@@ -22,7 +22,7 @@ public sealed class JwtGenerator : IJwtGenerator
         _issuer = cfg["Jwt:Issuer"] ?? "AppWeb.Server";
         _audience = cfg["Jwt:Audience"] ?? "AppWeb.Client";
         _lifetime = TimeSpan.TryParse(cfg["Jwt:Lifetime"], out var t) ? t : TimeSpan.FromMinutes(15);
-        _key = Encoding.UTF8.GetBytes(cfg["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is missing"));
+        _key = Encoding.UTF8.GetBytes(cfg["Jwt:Secret"] ?? cfg["Jwt:Key"] ?? throw new InvalidOperationException("JWT secret key is missing"));
     }
 
     public string Generate(int userId, string email)

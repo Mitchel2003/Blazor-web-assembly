@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<RootNamespace>AppWeb.SharedClient</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.6" />
+	<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
+	<PackageReference Include="Microsoft.JSInterop" Version="9.0.6" />
+	<PackageReference Include="FluentValidation" Version="12.0.0" />
+	<PackageReference Include="MudBlazor" Version="8.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppWeb.Shared\AppWeb.Shared.csproj" />
+  </ItemGroup>
+	
+</Project>

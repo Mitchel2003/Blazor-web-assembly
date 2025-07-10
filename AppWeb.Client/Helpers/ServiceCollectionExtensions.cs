@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Components.Authorization;
-using AppWeb.ViewModels.Core.Services;
+using AppWeb.SharedClient.Services.Adapters;
+using AppWeb.SharedClient.Services.Graphql;
+using AppWeb.Shared.Services.Contracts;
 using AppWeb.ViewModels.Core.Factory;
-using AppWeb.Client.Services.Blazor;
+using AppWeb.SharedClient.Http;
+using AppWeb.SharedClient.Auth;
 using AppWeb.Client.Services;
 using AppWeb.Client.Errors;
-using AppWeb.Client.Http;
-using AppWeb.Client.Auth;
-using AppWeb.ViewModels;
 
 namespace AppWeb.Client.Helpers;
 
@@ -51,11 +51,11 @@ public static class ServiceCollectionExtensions
             //Configure HttpClient with JWT authentication, using HttpClientFactory
             services.AddHttpClient("", client => client.BaseAddress = apiBase).AddHttpMessageHandler<JwtHandler>();
         }
-        
+
         // Registrar clientes API específicos como servicios Scoped
         // Usar HttpClientFactory para gestionar eficientemente el ciclo de vida de los HttpClient
         services.AddHttpClient<IUsersApiClient, UsersApiClient>(client => { if (apiBase != null) client.BaseAddress = apiBase; }).AddHttpMessageHandler<JwtHandler>();
-        services.AddHttpClient<IAuthApiClient, AuthApiClient>(client => { if (apiBase != null) client.BaseAddress = apiBase; }).AddHttpMessageHandler<JwtHandler>();        
+        services.AddHttpClient<IAuthApiClient, AuthApiClient>(client => { if (apiBase != null) client.BaseAddress = apiBase; }).AddHttpMessageHandler<JwtHandler>();
         return services;
     }
     #endregion ---------------------------------------------------------------------
@@ -73,12 +73,15 @@ public static class ServiceCollectionExtensions
     #region Platform services ------------------------------------------------------------
     /// <summary>Registers platform services for ViewModels.</summary>
     public static IServiceCollection AddPlatformServices(this IServiceCollection services)
-    { //Register platform services as Scoped to maintain session state
-        services.AddScoped<IAuthService, BlazorAuthService>();
-        services.AddScoped<IMessageService, BlazorMessageService>();
+    { //Register diferents platform services as Scoped to maintain session state (Blazor and Maui)
         services.AddScoped<INavigationService, BlazorNavigationService>();
-        services.AddScoped<IUsersService, BlazorUsersService>();
-        
+        services.AddScoped<IMessageService, BlazorMessageService>();
+        //still need maui services...
+
+        //Register shared services, in both context (BLZ - MAUI)
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUsersService, UsersService>();
+
         //Register ModelFactory as Singleton to share between all sessions; since it is stateless and thread-safe
         services.AddSingleton<IModelFactory>(sp => DefaultModelFactory.Instance);
         return services;

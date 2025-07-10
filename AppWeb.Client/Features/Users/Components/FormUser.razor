@@ -1,5 +1,5 @@
 @using Microsoft.AspNetCore.Components.Web
-@using AppWeb.Shared.Validators
+@using AppWeb.SharedClient.Validators
 @using FluentValidation.Results
 @using AppWeb.Shared.Inputs
 @using FluentValidation
@@ -8,7 +8,7 @@
 <MudCard Class="rounded-lg overflow-hidden">
     <MudCardHeader>
         <div class="flex items-center">
-            <MudIcon Icon="@(IsEditMode ? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" Class="mr-2" />
+            <MudIcon Icon="@(IsEditMode? Icons.Material.Filled.Edit : Icons.Material.Filled.PersonAdd)" Color="Color.Primary" Class="mr-2" />
             <MudText Typo="Typo.h6">@(IsEditMode ? "Edit User" : "Create User")</MudText>
         </div>
     </MudCardHeader>
@@ -93,7 +93,7 @@
     private MudForm _form = new();
     private readonly CreateUserInputValidator _createValidator = new();
     private readonly UpdateUserInputValidator _updateValidator = new();
-    
+
     private bool IsEditMode => Input is UpdateUserInput;
     public IValidator CurrentValidator => Input is UpdateUserInput ? (IValidator)_updateValidator : _createValidator;
 
@@ -101,9 +101,9 @@
     {
         await _form.Validate();
         ValidationResult fvResult = Input is UpdateUserInput updateModel
-            ? _updateValidator.Validate(updateModel) 
+            ? _updateValidator.Validate(updateModel)
             : _createValidator.Validate((CreateUserInput)Input);
-            
+
         if (!_form.IsValid || !fvResult.IsValid) return;
         await OnSubmit.InvokeAsync();
     }

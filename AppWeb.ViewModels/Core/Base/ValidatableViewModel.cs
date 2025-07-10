@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using AppWeb.ViewModels.Core.Validation;
-using AppWeb.ViewModels.Core.Services;
+using AppWeb.Shared.Services.Contracts;
 
 namespace AppWeb.ViewModels.Core.Base;
 
@@ -12,7 +12,7 @@ public abstract partial class ValidatableViewModel : ViewModelBase, IValidatable
 {
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private bool _isValid;
-    
+
     protected readonly IMessageService? _messageService;
 
     protected ValidatableViewModel(IMessageService? messageService = null)
@@ -24,14 +24,14 @@ public abstract partial class ValidatableViewModel : ViewModelBase, IValidatable
         var results = ValidationHelper.ValidateObject(this);
         return results.Select(r => r.ErrorMessage ?? "Unknown error").ToList();
     }
-    
+
     /// <summary>Validates a specific property and returns any error message.</summary>
     public virtual string? ValidateProperty(string propertyName, object? value)
     {
         var results = ValidationHelper.ValidateProperty(this, propertyName, value);
         return results.FirstOrDefault()?.ErrorMessage;
     }
-    
+
     /// <summary>Shows validation errors as a formatted message.</summary>
     protected virtual async Task ShowMessageErrorValidationAsync()
     {
@@ -54,16 +54,16 @@ public interface IValidatable
 {
     /// <summary>Indicates if the model is currently valid.</summary>
     bool IsValid { get; }
-    
+
     /// <summary>The current error message if validation fails.</summary>
     string ErrorMessage { get; }
-    
+
     /// <summary>Validates the current model.</summary>
     Task<bool> ValidateAsync();
-    
+
     /// <summary>Gets all validation errors from the current model.</summary>
     List<string> GetAllErrors();
-    
+
     /// <summary>Validates a specific property and returns any error message.</summary>
     string? ValidateProperty(string propertyName, object? value);
 }

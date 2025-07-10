@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppWeb.Shared.Inputs;
 
@@ -43,4 +43,4 @@ public class UpdateUserInput
     [DataType(DataType.Password)]
     public string? Password { get; set; }
     public bool IsActive { get; set; } = true;
-}
+} 

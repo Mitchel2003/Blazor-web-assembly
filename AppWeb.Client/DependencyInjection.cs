@@ -21,13 +21,12 @@ public static class DependencyInjection
         // - Transient: for lightweight services created on demand
         services.AddClientServices(apiBase);
         
-        // Register ViewModels from AppWeb.ViewModels
-        // ViewModels are registered as Scoped to maintain state within a user session
-        // while avoiding shared state issues between different users
-        AppWeb.ViewModels.DependencyInjection.AddViewModels(services);
+        //Register ViewModels from AppWeb.ViewModels
+        //ViewModels are registered as Scoped to maintain state within a user session
+        //while avoiding shared state issues between different users
+        ViewModels.DependencyInjection.AddViewModels(services);
         
-        // No need to register client-side ViewModels as they're now in AppWeb.ViewModels project
-        
+        //No need to register client-side ViewModels as they're now in AppWeb.ViewModels project
         return services;
     }
 }

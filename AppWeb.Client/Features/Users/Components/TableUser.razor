@@ -1,3 +1,4 @@
+@using AppWeb.ViewModels.Features.Contracts
 @using AppWeb.ViewModels.Features.Users
 @using AppWeb.Shared.Dtos
 @using MudBlazor
@@ -31,16 +32,16 @@
                     <div class="flex gap-2">
                         @if (ViewModel.SelectedItems.Count > 0)
                         {
-                            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" Size="Size.Small" OnClick="@(() => ViewModel.BulkDeleteUsersCommand.ExecuteAsync(null))">
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.DeleteSweep" Size="Size.Small" OnClick="@(ViewModel.BulkDeleteCommand.Execute)">
                                 Delete Selected (@ViewModel.SelectedItems.Count)
                             </MudButton>
                         }
 
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" Size="Size.Small" OnClick="@(() => ViewModel.RefreshCommand.ExecuteAsync(null))">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" Size="Size.Small" OnClick="@(ViewModel.RefreshCommand.Execute)">
                             Refresh
                         </MudButton>
 
-                        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(() => ViewModel.AddUserCommand.ExecuteAsync(null))">
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="@(ViewModel.AddCommand.Execute)">
                             Add User
                         </MudButton>
                     </div>
@@ -85,13 +86,13 @@
                         <MudTd class="text-right">
                             <div class="flex justify-end">
                                 <MudTooltip Text="View Details">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small" OnClick="@(() => ViewModel.ViewUserCommand.ExecuteAsync(context))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Color="Color.Info" Size="Size.Small" OnClick="@(() => ViewUser(context))" />
                                 </MudTooltip>
                                 <MudTooltip Text="Edit User">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(() => ViewModel.EditUserCommand.ExecuteAsync(context))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(() => EditUser(context))" />
                                 </MudTooltip>
                                 <MudTooltip Text="Delete User">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => ViewModel.DeleteUserCommand.ExecuteAsync(context))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(() => DeleteUser(context))" />
                                 </MudTooltip>
                             </div>
                         </MudTd>
@@ -122,23 +123,53 @@
     [Parameter] public EventCallback OnAdd { get; set; }
     [Parameter] public bool Loading { get; set; }
 
-    protected override void OnInitialized()
-    { //Initialize the view model with data
+    protected override async Task OnInitializedAsync()
+    { // Initialize the view model with data
         UpdateViewModel();
         
         // Subscribe to events
-        ViewModel.OnUserAdded += (s, e) => OnAdd.InvokeAsync();
-        ViewModel.OnUserDeleted += (s, e) => OnDelete.InvokeAsync(e.User);
-        ViewModel.OnUserEdited += (s, e) => OnEdit.InvokeAsync(e.User);
-        ViewModel.OnUserViewed += (s, e) => OnView.InvokeAsync(e.User);
-        ViewModel.OnUsersRefreshed += (s, e) => OnRefresh.InvokeAsync();
-        ViewModel.OnUsersBulkDeleted += (s, e) => OnBulkDelete.InvokeAsync(e.Users.ToList());
+        ViewModel.OnAdd += HandleAddUser;
+        ViewModel.OnEdit += HandleEditUser;
+        ViewModel.OnView += HandleViewUser;
+        ViewModel.OnDelete += HandleDeleteUser;
+        ViewModel.OnRefresh += HandleRefreshUsers;
+        ViewModel.OnBulkDelete += HandleBulkDeleteUsers;
+        
+        await Task.CompletedTask;
     }
+
+    // Event handlers that invoke callbacks to parent
+    private void HandleAddUser(object? sender, EventArgs e) => OnAdd.InvokeAsync();
+    private void HandleDeleteUser(object? sender, UserResultDto e) => OnDelete.InvokeAsync(e);
+    private void HandleEditUser(object? sender, UserResultDto e) => OnEdit.InvokeAsync(e);
+    private void HandleViewUser(object? sender, UserResultDto e) => OnView.InvokeAsync(e);
+    private void HandleRefreshUsers(object? sender, EventArgs e) => OnRefresh.InvokeAsync();
+    private void HandleBulkDeleteUsers(object? sender, List<UserResultDto> e) => OnBulkDelete.InvokeAsync(e);
 
     // Update ViewModel when parameters change
     protected override void OnParametersSet() { UpdateViewModel(); }
     
-    private void UpdateViewModel() 
+    private void UpdateViewModel()
     { ViewModel.Users = Users; ViewModel.IsLoading = Loading; }
-    public void Dispose() { ViewModel?.Dispose(); } //Clean up resources
+    
+    // Helper methods for command execution with parameters
+    private void ViewUser(UserResultDto user) => ViewModel.ViewCommand.Execute(user);
+    private void EditUser(UserResultDto user) => ViewModel.EditCommand.Execute(user);
+    private void DeleteUser(UserResultDto user) => ViewModel.DeleteCommand.Execute(user);
+    
+    public void Dispose()
+    { 
+        // Unsubscribe from events to prevent memory leaks
+        if (ViewModel != null)
+        {
+            ViewModel.OnAdd -= HandleAddUser;
+            ViewModel.OnDelete -= HandleDeleteUser;
+            ViewModel.OnEdit -= HandleEditUser;
+            ViewModel.OnView -= HandleViewUser;
+            ViewModel.OnRefresh -= HandleRefreshUsers;
+            ViewModel.OnBulkDelete -= HandleBulkDeleteUsers;
+            
+            ViewModel.Dispose();
+        }
+    }
 }

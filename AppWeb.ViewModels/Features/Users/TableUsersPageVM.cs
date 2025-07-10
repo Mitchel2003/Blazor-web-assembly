@@ -1,5 +1,6 @@
+using AppWeb.ViewModels.Features.Contracts;
 using CommunityToolkit.Mvvm.ComponentModel;
-using AppWeb.ViewModels.Core.Services;
+using AppWeb.Shared.Services.Contracts;
 using AppWeb.ViewModels.Core.Base;
 using CommunityToolkit.Mvvm.Input;
 using AppWeb.Shared.Dtos;
@@ -82,12 +83,12 @@ public partial class TableUsersPageVM : ViewModelBase, ITableUsersPageVM
 
     [RelayCommand]
     /// <summary>Handles refreshing the user list.</summary>
-    private async Task RefreshAsync()
+    private async Task LoadUsersAsync()
     { await LoadAsync(); }
 
     [RelayCommand]
     /// <summary>Handles bulk deletion of users.</summary>
-    private async Task BulkDeleteAsync(List<UserResultDto> usersToDelete)
+    private async Task BulkDeleteUsersAsync(List<UserResultDto> usersToDelete)
     {
         if (usersToDelete.Count == 0) return;
         var confirm = await _messageService.ConfirmAsync("Confirm Bulk Delete", $"Delete {usersToDelete.Count} selected users?", "Delete All", "Cancel");

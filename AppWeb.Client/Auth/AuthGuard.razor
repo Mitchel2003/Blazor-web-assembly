@@ -1,8 +1,9 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Authorization
+@using AppWeb.Shared.Services.Contracts
 @using Microsoft.AspNetCore.Components
-@using AppWeb.ViewModels.Core.Services
+@using AppWeb.SharedClient.Services
 
 @inject AuthenticationStateProvider AuthStateProvider
 @inject INavigationService NavigationService
@@ -15,7 +16,7 @@
     [Parameter] public string DashboardPath { get; set; } = "/";
     [Parameter] public string ReturnUrl { get; set; } = "/";
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    
+
     private bool _redirectionHandled = false;
     private bool _isInitialized = false;
 
@@ -23,22 +24,21 @@
     {
         if (_isInitialized) return;
         _isInitialized = true;
-        
+
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
         if (_redirectionHandled) return;
 
         if (RequireAuthentication && !isAuthenticated)
-        { 
-            // User not authenticated but trying to access protected route
+        { //User not authenticated but trying to access protected route
             _redirectionHandled = true;
-            
-            // Get current URL for return after login
+
+            //Get current URL for return after login
             var currentUrl = NavigationManager.Uri;
             var baseUri = NavigationManager.BaseUri;
             var relativeUrl = currentUrl.Replace(baseUri, "/");
-            
-            // Navigate to login with return URL
+
+            //Navigate to login with return URL
             await NavigationService.NavigateToAsync(relativeUrl);
             return;
         }

@@ -1,8 +1,9 @@
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @page "/auth/login"
 
+@using AppWeb.ViewModels.Features.Contracts
 @using AppWeb.ViewModels.Features.Auth
-@using AppWeb.Shared.Validators
+@using AppWeb.SharedClient.Validators
 @using AppWeb.Shared.Inputs
 @using AppWeb.Client.Auth
 @using System.Web
@@ -106,15 +107,14 @@
     
     private async Task HandleLogin() { await ViewModel.LoginCommand.ExecuteAsync(_form); }
 
-    private void OnLoginSuccessful(object sender, LoginSuccessEventArgs e) { StateHasChanged();}
-
     protected override async Task OnInitializedAsync()
-    { 
-        // Subscribe to the login success event
-        if (ViewModel is LoginVM loginVM) loginVM.LoginSuccessful += OnLoginSuccessful!;
+    { //Subscribe to the login success event
+        if (ViewModel is LoginVM loginVM) loginVM.LoginCompleted += OnLoginCompleted!;
         await ViewModel.InitializeAsync();
     }
     
     public void Dispose() //Unsubscribe from events when the component is disposed
-    { if (ViewModel is LoginVM loginVM) { loginVM.LoginSuccessful -= OnLoginSuccessful!; } }
+    { if (ViewModel is LoginVM loginVM) { loginVM.LoginCompleted -= OnLoginCompleted!; } }
+
+    private void OnLoginCompleted(object sender, LoginSuccessEventArgs e) { StateHasChanged(); }
 }

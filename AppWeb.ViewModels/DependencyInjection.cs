@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using AppWeb.ViewModels.Features.Contracts;
 using AppWeb.ViewModels.Features.Users;
 using AppWeb.ViewModels.Features.Auth;
 using AppWeb.ViewModels.Core.Factory;
