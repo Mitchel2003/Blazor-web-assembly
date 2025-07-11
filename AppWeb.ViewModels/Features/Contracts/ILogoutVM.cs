@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 
 namespace AppWeb.ViewModels.Features.Contracts;
+
 public interface ILogoutVM
 {
     /// <summary>Error message if logout failed.</summary>

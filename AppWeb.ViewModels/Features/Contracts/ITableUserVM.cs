@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.Input;
+using AppWeb.ViewModels.Core.Base;
 using AppWeb.Shared.Dtos;
 
 namespace AppWeb.ViewModels.Features.Contracts;
 
 /// <summary>Interface for the TableUserVM.</summary>
-public interface ITableUserVM : IDisposable
+public interface ITableUserVM : IViewModelBase
 {
     /// <summary>Indicates if the view model is currently loading data.</summary>
     bool IsLoading { get; set; }

@@ -1,9 +1,11 @@
-namespace AppWeb.ViewModels.Features.Contracts;
+using AppWeb.ViewModels.Core.Base;
 using CommunityToolkit.Mvvm.Input;
 using AppWeb.Shared.Dtos;
 
+namespace AppWeb.ViewModels.Features.Contracts;
+
 /// <summary>Interface for the TableUsersPageVM.</summary>
-public interface ITableUsersPageVM : IDisposable
+public interface ITableUsersPageVM : IViewModelBase
 {
     /// <summary>Indicates if the page is currently loading data.</summary>
     bool IsLoading { get; }
@@ -28,6 +30,12 @@ public interface ITableUsersPageVM : IDisposable
     
     /// <summary>Command to delete multiple users.</summary>
     IAsyncRelayCommand<List<UserResultDto>> BulkDeleteUsersCommand { get; }
+    
+    /// <summary>Event raised when a user is selected.</summary>
+    event EventHandler<UserResultDto>? UserSelected;
+    
+    /// <summary>Event raised when a user is deleted.</summary>
+    event EventHandler<UserResultDto>? UserDeleted;
     
     /// <summary>Loads the users data.</summary>
     Task LoadAsync();

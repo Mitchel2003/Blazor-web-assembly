@@ -17,6 +17,12 @@ public partial class TableUsersPageVM : ViewModelBase, ITableUsersPageVM
     [ObservableProperty] private IReadOnlyList<UserResultDto>? _users;
     [ObservableProperty] private bool _isLoading;
 
+    /// <summary>Event raised when a user is selected.</summary>
+    public event EventHandler<UserResultDto>? UserSelected;
+    
+    /// <summary>Event raised when a user is deleted.</summary>
+    public event EventHandler<UserResultDto>? UserDeleted;
+
     public TableUsersPageVM(IUsersService usersService, IMessageService messageService, INavigationService navigationService)
     {
         _usersService = usersService;
@@ -61,6 +67,7 @@ public partial class TableUsersPageVM : ViewModelBase, ITableUsersPageVM
         // Here you would typically open a dialog or navigate to details view
         // For now, just show a success message
         await _messageService.ShowSuccessAsync($"Viewed user: {fullUser.Username}");
+        UserSelected?.Invoke(this, user);
         IsLoading = false;
     }
 
@@ -74,7 +81,11 @@ public partial class TableUsersPageVM : ViewModelBase, ITableUsersPageVM
         {
             IsLoading = true;
             var success = await _usersService.DeleteUserAsync(user.Id);
-            if (success) { await LoadAsync(); await _messageService.ShowSuccessAsync($"User '{user.Username}' deleted successfully."); }
+            if (success) {
+                await LoadAsync();
+                UserDeleted?.Invoke(this, user);
+                await _messageService.ShowSuccessAsync($"User '{user.Username}' deleted successfully.");
+            }
             else { await _messageService.ShowErrorAsync($"Failed to delete user '{user.Username}'."); }
         }
         catch (Exception ex) { await _messageService.ShowErrorAsync($"Error deleting user: {ex.Message}"); }
@@ -101,7 +112,7 @@ public partial class TableUsersPageVM : ViewModelBase, ITableUsersPageVM
             foreach (var user in usersToDelete)
             {
                 var success = await _usersService.DeleteUserAsync(user.Id);
-                if (success) successCount++; // Increment success count
+                if (success) { successCount++; UserDeleted?.Invoke(this, user); }
                 else errors.Add($"Failed to delete user {user.Username} (ID: {user.Id})");
             }
             await LoadAsync(); // Refresh the list

@@ -158,7 +158,7 @@
     private void DeleteUser(UserResultDto user) => ViewModel.DeleteCommand.Execute(user);
     
     public void Dispose()
-    { 
+    {
         // Unsubscribe from events to prevent memory leaks
         if (ViewModel != null)
         {
@@ -168,7 +168,7 @@
             ViewModel.OnView -= HandleViewUser;
             ViewModel.OnRefresh -= HandleRefreshUsers;
             ViewModel.OnBulkDelete -= HandleBulkDeleteUsers;
-            
+
             ViewModel.Dispose();
         }
     }

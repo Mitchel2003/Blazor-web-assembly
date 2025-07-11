@@ -1,0 +1,83 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:AppWeb.Maui"
+             x:Class="AppWeb.Maui.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Custom Application Colors -->
+            <Color x:Key="Primary">#3498db</Color>
+            <Color x:Key="Secondary">#2ecc71</Color>
+            <Color x:Key="Tertiary">#9b59b6</Color>
+            <Color x:Key="Success">#27ae60</Color>
+            <Color x:Key="Warning">#f39c12</Color>
+            <Color x:Key="Danger">#e74c3c</Color>
+            
+            <Color x:Key="Gray100">#f8f9fa</Color>
+            <Color x:Key="Gray200">#e9ecef</Color>
+            <Color x:Key="Gray300">#dee2e6</Color>
+            <Color x:Key="Gray400">#ced4da</Color>
+            <Color x:Key="Gray500">#adb5bd</Color>
+            <Color x:Key="Gray600">#6c757d</Color>
+            <Color x:Key="Gray700">#495057</Color>
+            <Color x:Key="Gray800">#343a40</Color>
+            <Color x:Key="Gray900">#212529</Color>
+            
+            <!-- Common Styles -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="5" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="FontAttributes" Value="Bold" />
+            </Style>
+            
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="BorderColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                <Setter Property="BorderWidth" Value="1" />
+                <Setter Property="CornerRadius" Value="5" />
+                <Setter Property="Padding" Value="12" />
+            </Style>
+            
+            <Style x:Key="DangerButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="5" />
+                <Setter Property="Padding" Value="12" />
+            </Style>
+            
+            <Style x:Key="CardFrame" TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="BorderColor" Value="{StaticResource Gray300}" />
+                <Setter Property="HasShadow" Value="True" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="15" />
+                <Setter Property="Margin" Value="0,5" />
+            </Style>
+            
+            <Style x:Key="PageTitle" TargetType="Label">
+                <Setter Property="FontSize" Value="24" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Margin" Value="0,0,0,10" />
+            </Style>
+            
+            <Style x:Key="SectionTitle" TargetType="Label">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Margin" Value="0,10,0,5" />
+            </Style>
+            
+            <Style x:Key="FormLabel" TargetType="Label">
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="Margin" Value="0,0,0,5" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

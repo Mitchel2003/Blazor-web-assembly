@@ -120,7 +120,7 @@ public abstract partial class ViewModelCrud<TModel, TIdType> : ValidatableViewMo
 }
 
 /// <summary>Interface for ViewModels that implement CRUD operations.</summary>
-public interface IViewModelCrud<TModel, TIdType>
+public interface IViewModelCrud<TModel, TIdType> : IViewModelBase
     where TModel : class, new()
     where TIdType : struct
 {

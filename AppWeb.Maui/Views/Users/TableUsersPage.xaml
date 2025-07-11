@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<common:BaseContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:AppWeb.Maui.Views.Common"
+    xmlns:converters="clr-namespace:AppWeb.Maui.Converters"
+    xmlns:viewmodels="clr-namespace:AppWeb.ViewModels.Features.Contracts;assembly=AppWeb.ViewModels"
+    xmlns:users="clr-namespace:AppWeb.ViewModels.Features.Users;assembly=AppWeb.ViewModels"
+    x:Class="AppWeb.Maui.Views.Users.TableUsersPage"
+    x:TypeArguments="viewmodels:ITableUsersPageVM"
+    Title="Users">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto"
+          Padding="20"
+          RowSpacing="20">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+            <StackLayout Grid.Column="0" Spacing="5">
+                <Label Text="Users Management"
+                       FontSize="24"
+                       FontAttributes="Bold" />
+                <Label Text="Manage your system users"
+                       FontSize="16" 
+                       TextColor="{StaticResource Gray500}" />
+            </StackLayout>
+
+            <Button Grid.Column="1"
+                    Text="Add User"
+                    Command="{Binding CreateUserCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Users Table -->
+        <RefreshView Grid.Row="1" 
+                     IsRefreshing="{Binding IsLoading}"
+                     Command="{Binding LoadUsersCommand}">
+            <CollectionView ItemsSource="{Binding Users}">
+                <CollectionView.EmptyView>
+                    <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="No users found"
+                               FontSize="18"
+                               TextColor="{StaticResource Gray500}"
+                               HorizontalOptions="Center" />
+                        <Button Text="Refresh"
+                                Command="{Binding LoadUsersCommand}"
+                                Style="{StaticResource SecondaryButton}"
+                                HorizontalOptions="Center"
+                                Margin="0,20,0,0" />
+                    </StackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:ITableUserVM">
+                        <Frame Margin="0,5" Padding="15" HasShadow="False" BorderColor="{StaticResource Gray300}">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <StackLayout Grid.Column="0" Spacing="5">
+                                    <Label Text="{Binding Model.Username}"
+                                           FontSize="18"
+                                           FontAttributes="Bold" />
+                                    <Label Text="{Binding Model.Email}"
+                                           FontSize="14" />
+                                </StackLayout>
+
+                                <HorizontalStackLayout Grid.Column="1" 
+                                                       Spacing="10" 
+                                                       VerticalOptions="Center">
+                                    <Button Text="Edit"
+                                            Command="{Binding EditCommand}"
+                                            Style="{StaticResource SecondaryButton}" />
+                                    <Button Text="Delete"
+                                            Command="{Binding DeleteCommand}"
+                                            BackgroundColor="Red"
+                                            TextColor="White" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="2"
+                           IsRunning="{Binding IsLoading}"
+                           IsVisible="{Binding IsLoading}"
+                           HorizontalOptions="Center" />
+    </Grid>
+</common:BaseContentPage> 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="AppWeb.Maui.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:AppWeb.Maui.Views"
+    xmlns:auth="clr-namespace:AppWeb.Maui.Views.Auth"
+    xmlns:users="clr-namespace:AppWeb.Maui.Views.Users"
+    Title="AppWeb">
+
+    <Shell.FlyoutHeaderTemplate>
+        <DataTemplate>
+            <Grid BackgroundColor="{StaticResource Primary}" 
+                  HeightRequest="120" 
+                  Padding="20">
+                <Label Text="AppWeb Maui"
+                       TextColor="White" 
+                       FontSize="Large" 
+                       FontAttributes="Bold" 
+                       VerticalOptions="Center"/>
+            </Grid>
+        </DataTemplate>
+    </Shell.FlyoutHeaderTemplate>
+
+    <!-- Unauthorized Routes -->
+    <ShellContent
+        Route="login"
+        Title="Login"
+        ContentTemplate="{DataTemplate auth:LoginPage}"
+        FlyoutItemIsVisible="False" />
+
+    <!-- Authorized Routes -->
+    <FlyoutItem Title="Dashboard" Route="home" Icon="home_icon.png">
+        <ShellContent 
+            Title="Home" 
+            ContentTemplate="{DataTemplate local:HomePage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="Users" Route="users" Icon="users_icon.png">
+        <ShellContent 
+            Title="Users" 
+            ContentTemplate="{DataTemplate users:TableUsersPage}" />
+    </FlyoutItem>
+
+    <MenuItem Text="Logout" 
+              IconImageSource="logout_icon.png"
+              Command="{Binding LogoutCommand}" />
+
+</Shell>

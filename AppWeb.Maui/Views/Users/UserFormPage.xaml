@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<common:BaseContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:AppWeb.Maui.Views.Common"
+    xmlns:converters="clr-namespace:AppWeb.Maui.Converters"
+    xmlns:viewmodels="clr-namespace:AppWeb.ViewModels.Features.Contracts;assembly=AppWeb.ViewModels"
+    x:Class="AppWeb.Maui.Views.Users.UserFormPage"
+    x:TypeArguments="viewmodels:ICreateUserVM"
+    Title="{Binding IsEditing, StringFormat='{0:Add User,Edit User}'}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:BoolToPasswordVisibilityConverter x:Key="BoolToPasswordVisibilityConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <Grid RowDefinitions="Auto, Auto, Auto, *"
+              Padding="20"
+              RowSpacing="20">
+
+            <!-- Header -->
+            <StackLayout Grid.Row="0" Spacing="5">
+                <Label Text="{Binding IsEditing, StringFormat='{0:Create New User,Edit User}'}"
+                       FontSize="24"
+                       FontAttributes="Bold" />
+                <Label Text="{Binding IsEditing, StringFormat='{0:Add a new user to the system,Edit existing user information}'}"
+                       FontSize="16" 
+                       TextColor="{StaticResource Gray500}" />
+            </StackLayout>
+
+            <!-- Form -->
+            <Grid Grid.Row="1" 
+                  RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto"
+                  RowSpacing="15">
+
+                <!-- Username -->
+                <StackLayout Grid.Row="0">
+                    <Label Text="Username" />
+                    <Frame Padding="15, 0" 
+                           HasShadow="False"
+                           BorderColor="{StaticResource Gray300}"
+                           CornerRadius="5">
+                        <Entry Text="{Binding Model.Username}" 
+                               Placeholder="Enter username"
+                               IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Frame>
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           FontSize="12"
+                           IsVisible="{Binding HasError}" />
+                </StackLayout>
+
+                <!-- Email -->
+                <StackLayout Grid.Row="2">
+                    <Label Text="Email" />
+                    <Frame Padding="15, 0" 
+                           HasShadow="False"
+                           BorderColor="{StaticResource Gray300}"
+                           CornerRadius="5">
+                        <Entry Text="{Binding Model.Email}" 
+                               Placeholder="Enter email address"
+                               Keyboard="Email"
+                               IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Frame>
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           FontSize="12"
+                           IsVisible="{Binding HasError}" />
+                </StackLayout>
+
+                <!-- Password (visible only when creating new user) -->
+                <StackLayout Grid.Row="3" IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}">
+                    <Label Text="Password" />
+                    <Frame Padding="15, 0" 
+                           HasShadow="False"
+                           BorderColor="{StaticResource Gray300}"
+                           CornerRadius="5">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding Model.Password}" 
+                                   Placeholder="Enter password"
+                                   IsPassword="{Binding ShowPassword, Converter={StaticResource InvertedBoolConverter}}"
+                                   IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                            <Button Grid.Column="1"
+                                    Text="{Binding ShowPassword, Converter={StaticResource BoolToPasswordVisibilityConverter}}"
+                                    Command="{Binding TogglePasswordVisibilityCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                        </Grid>
+                    </Frame>
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           FontSize="12"
+                           IsVisible="{Binding HasError}" />
+                </StackLayout>
+
+                <!-- ConfirmPassword -->
+                <StackLayout Grid.Row="4" IsVisible="{Binding IsEditing, Converter={StaticResource InvertedBoolConverter}}">
+                    <Label Text="Confirm Password" />
+                    <Frame Padding="15, 0" 
+                           HasShadow="False"
+                           BorderColor="{StaticResource Gray300}"
+                           CornerRadius="5">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding Model.ConfirmPassword}" 
+                                   Placeholder="Confirm password"
+                                   IsPassword="{Binding ShowPassword, Converter={StaticResource InvertedBoolConverter}}"
+                                   IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                            <Button Grid.Column="1"
+                                    Text="{Binding ShowPassword, Converter={StaticResource BoolToPasswordVisibilityConverter}}"
+                                    Command="{Binding TogglePasswordVisibilityCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Primary}"
+                                    IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                        </Grid>
+                    </Frame>
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           FontSize="12"
+                           IsVisible="{Binding HasError}" />
+                </StackLayout>
+
+                <!-- Submit Button -->
+                <Button Grid.Row="5"
+                        Text="{Binding IsEditing, StringFormat='{0:Create User,Save Changes}'}"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+            </Grid>
+
+            <!-- Error Message -->
+            <Label Grid.Row="2" 
+                   Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding HasError}" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator Grid.Row="3"
+                               IsRunning="{Binding IsSaving}"
+                               IsVisible="{Binding IsSaving}"
+                               HorizontalOptions="Center" />
+        </Grid>
+    </ScrollView>
+</common:BaseContentPage> 

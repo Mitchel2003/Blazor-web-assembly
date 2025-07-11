@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<common:BaseContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:AppWeb.Maui.Views.Common"
+    xmlns:converters="clr-namespace:AppWeb.Maui.Converters"
+    xmlns:viewmodels="clr-namespace:AppWeb.ViewModels.Features.Contracts;assembly=AppWeb.ViewModels"
+    x:Class="AppWeb.Maui.Views.Auth.LoginPage"
+    x:TypeArguments="viewmodels:ILoginVM"
+    Title="Login">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:BoolToPasswordVisibilityConverter x:Key="BoolToPasswordVisibilityConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, Auto, *"
+          Padding="20" 
+          RowSpacing="20">
+        
+        <!-- Header -->
+        <StackLayout Grid.Row="0" Spacing="10">
+            <Label Text="Welcome Back" 
+                   FontSize="28" 
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+            <Label Text="Please log in to your account"
+                   FontSize="16"
+                   TextColor="{StaticResource Gray500}"
+                   HorizontalOptions="Center" />
+        </StackLayout>
+        
+        <!-- Login Form -->
+        <Grid Grid.Row="1" 
+              RowDefinitions="Auto, Auto, Auto, Auto"
+              RowSpacing="15">
+            
+            <!-- Email -->
+            <StackLayout Grid.Row="0">
+                <Label Text="Email" />
+                <Frame Padding="15, 0" 
+                       HasShadow="False"
+                       BorderColor="{StaticResource Gray300}"
+                       CornerRadius="5">
+                    <Entry Text="{Binding Model.Email}" 
+                           Placeholder="Enter your email"
+                           IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                </Frame>
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       IsVisible="{Binding HasError}" />
+            </StackLayout>
+            
+            <!-- Password -->
+            <StackLayout Grid.Row="1">
+                <Label Text="Password" />
+                <Frame Padding="15, 0" 
+                       HasShadow="False"
+                       BorderColor="{StaticResource Gray300}"
+                       CornerRadius="5">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Entry Grid.Column="0"
+                               Text="{Binding Model.Password}" 
+                               Placeholder="Enter your password"
+                               IsPassword="{Binding ShowPassword, Converter={StaticResource InvertedBoolConverter}}"
+                               IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                        <Button Grid.Column="1"
+                                Text="{Binding ShowPassword, Converter={StaticResource BoolToPasswordVisibilityConverter}}"
+                                Command="{Binding TogglePasswordVisibilityCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{StaticResource Primary}"
+                                IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                    </Grid>
+                </Frame>
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="Red"
+                       FontSize="12"
+                       IsVisible="{Binding HasError}" />
+            </StackLayout>
+            
+            <!-- Submit Button -->
+            <Button Grid.Row="2"
+                    Text="Login"
+                    CommandParameter="{Binding}"
+                    Command="{Binding LoginCommand}"
+                    Style="{StaticResource PrimaryButton}"
+                    IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+            
+            <Label Grid.Row="3" 
+                   Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding HasError}" />
+        </Grid>
+        
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="2" 
+                          IsRunning="{Binding IsSaving}"
+                          IsVisible="{Binding IsSaving}"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Start"
+                          Margin="0,20,0,0" />
+    </Grid>
+</common:BaseContentPage> 

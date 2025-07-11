@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 namespace AppWeb.ViewModels.Core.Base;
 
 /// <summary>Enhanced base class for all ViewModels with comprehensive functionality.</summary>
-public abstract partial class ViewModelBase : ObservableObject, IDisposable
+public abstract partial class ViewModelBase : ObservableObject, IViewModelBase
 {
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _title = string.Empty;
@@ -49,7 +49,6 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     public virtual Task OnDisappearing() => Task.CompletedTask;
 
     #region Helpers ------------------------------------------------------------
-
     /// <summary>Releases all resources used by the ViewModel.</summary>
     public virtual void Dispose()
     {
@@ -64,6 +63,38 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
 
     /// <summary>Initialization logic for the ViewModel.</summary>
     protected virtual Task OnInitializeAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-
     #endregion ---------------------------------------------------------------------
 }
+
+#region Interfaces ------------------------------------------------------------
+/// <summary>Interface for all ViewModels with core functionality.</summary>
+public interface IViewModelBase : IDisposable
+{
+    /// <summary>Gets or sets error message.</summary>
+    string ErrorMessage { get; set; }
+    
+    /// <summary>Gets or sets the title of the ViewModel.</summary>
+    string Title { get; set; }
+    
+    /// <summary>Gets or sets a value indicating whether the ViewModel is initialized.</summary>
+    bool IsInitialized { get; set; }
+    
+    /// <summary>Gets or sets a value indicating whether the ViewModel is busy.</summary>
+    bool IsBusy { get; set; }
+    
+    /// <summary>Initializes the ViewModel with the data needed for display.</summary>
+    Task InitializeAsync(CancellationToken cancellationToken = default);
+    
+    /// <summary>Called when navigating to a page with parameters.</summary>
+    Task OnNavigatingToAsync(object parameter);
+    
+    /// <summary>Called when navigated to a page.</summary>
+    Task OnNavigatedToAsync();
+    
+    /// <summary>Called when navigating away from a page.</summary>
+    Task OnNavigatedFromAsync();
+    
+    /// <summary>Called when the page is disappearing.</summary>
+    Task OnDisappearing();
+}
+#endregion ---------------------------------------------------------------------
