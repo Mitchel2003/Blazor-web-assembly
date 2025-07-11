@@ -6,15 +6,12 @@ using AppWeb.Application.Helpers;
 using AppWeb.Domain.Interfaces;
 using AppWeb.Domain.Models;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using AppWeb.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using AppWeb.Application.Security;
-using System.Text;
 
 namespace AppWeb.Infrastructure;
 

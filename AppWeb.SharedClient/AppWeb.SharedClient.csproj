@@ -18,5 +18,5 @@
   <ItemGroup>
     <ProjectReference Include="..\AppWeb.Shared\AppWeb.Shared.csproj" />
   </ItemGroup>
-	
+
 </Project>

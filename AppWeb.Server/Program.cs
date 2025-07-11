@@ -64,5 +64,4 @@ app.MapGraphQL("/graphql");
 //Use specific patterns to avoid conflicts with Blazor routes
 app.MapControllerRoute(name: "auth", pattern: "api/auth/{action=Login}/{id?}", defaults: new { controller = "Auth" });
 app.MapControllerRoute(name: "default", pattern: "api/{controller=Home}/{action=Index}/{id?}"); //Other API endpoints
-
 app.Run();
