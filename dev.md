@@ -9,6 +9,7 @@ Each solution must embody:
 - **Reusability and scale**.
 - **Intentional, domain-driven design**.
 - **Zero tolerance for shortcuts that compromise quality**.
+- **Take you time, i wait for you, so please build task with ability**.
 
 We write code that **thinks ahead**, survives change, and anticipates edge cases like a master chess player.
 
