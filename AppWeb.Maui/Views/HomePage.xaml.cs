@@ -10,12 +10,11 @@ public partial class HomePage : ContentPage
     {
         InitializeComponent();
         _navigationService = navigationService;
-        
-        // Set up command binding for the navigation command
+        //Set up command binding for the navigation command
         BindingContext = this;
     }
     
-    // Command to navigate to the users page
+    //Command to navigate to the users page
     public Command NavigateToUsersCommand => new Command(async () => 
     { await _navigationService.NavigateToAsync(NavigationConfig.Routes.Users); });
 }

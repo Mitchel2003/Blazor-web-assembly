@@ -1,14 +1,14 @@
 namespace AppWeb.Shared.Services.Contracts;
 
-/// <summary>Servicio para mostrar mensajes al usuario.</summary>
+/// <summary>Service to show messages to the user.</summary>
 public interface IMessageService
 {
-    /// <summary>Muestra un mensaje de error.</summary>
+    /// <summary>Show an error message.</summary>
     Task ShowErrorAsync(string message);
 
-    /// <summary>Muestra un mensaje de éxito.</summary>
+    /// <summary>Show a success message.</summary>
     Task ShowSuccessAsync(string message);
 
-    /// <summary>Muestra un diálogo de confirmación.</summary>
+    /// <summary>Show a confirmation dialog.</summary>
     Task<bool> ConfirmAsync(string title, string message, string acceptText = "Aceptar", string cancelText = "Cancelar");
 }

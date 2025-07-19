@@ -33,7 +33,7 @@ public class MessageService : IMessageService
     { return await Application.Current.MainPage.DisplayActionSheet(title, cancelText, destructionText, buttons); }
 
     /// <summary>Shows a prompt for user input.</summary>
-    public async Task<string> ShowPromptAsync(string title, string message, string accept = "OK", string cancel = "Cancel", string placeholder = null, int maxLength = -1)
+    public async Task<string> ShowPromptAsync(string title, string message, string accept = "OK", string cancel = "Cancel", string? placeholder = "", int maxLength = -1)
     { return await Application.Current.MainPage.DisplayPromptAsync(title, message, accept, cancel, placeholder, maxLength); }
 
     public void ShowToast(string message, int durationMilliseconds = 3000)

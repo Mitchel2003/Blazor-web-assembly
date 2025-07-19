@@ -1,12 +1,12 @@
 using AppWeb.SharedClient.Services.Graphql;
 using AppWeb.Shared.Services.Contracts;
-using AppWeb.SharedClient.Auth;
 using AppWeb.Shared.Inputs;
 using AppWeb.Shared.Dtos;
+using AppWeb.Maui.Auth;
 
 namespace AppWeb.SharedClient.Services.Adapters;
 
-/// <summary>using AuthApiClient for API communication and JwtAuthStateProvider for token management.</summary>
+/// <summary>MAUI version of AuthService that uses MauiAuthStateProvider for token management.</summary>
 public class AuthService : IAuthService
 {
     private readonly IAuthApiClient _authApiClient;
@@ -19,14 +19,14 @@ public class AuthService : IAuthService
         _authStateProvider = authStateProvider;
 
         _authStateProvider.AuthenticationStateChanged += (sender, isAuthenticated) =>
-        { //Subscribe to JwtAuthStateProvider's authentication state changed event
+        { //Subscribe to MauiAuthStateProvider's authentication state changed event
             AuthenticationStateChanged?.Invoke(this, new AuthenticationStateChangedEventArgs
             { IsAuthenticated = isAuthenticated, Username = _authStateProvider.GetUsername() });
         };
     }
 
     /// <summary>Checks if user is currently authenticated by verifying JWT token existence.</summary>
-    public Task<bool> IsAuthenticatedAsync() => _authStateProvider.IsAuthenticatedAsync();
+    public async Task<bool> IsAuthenticatedAsync() => await _authStateProvider.IsAuthenticatedAsync();
 
     /// <summary>Sets the JWT token for authentication.</summary>
     public async Task SetTokenAsync(string? token)

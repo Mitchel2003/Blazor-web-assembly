@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 
-namespace AppWeb.SharedClient.Auth;
+namespace AppWeb.Maui.Auth;
 
-/// <summary>DelegatingHandler that injects the current JWT into outgoing requests.</summary>
+/// <summary>DelegatingHandler that injects the current JWT into outgoing requests for MAUI.</summary>
 public sealed class JwtHandler : DelegatingHandler
 {
     private readonly JwtAuthStateProvider _provider;
-    public JwtHandler(AuthenticationStateProvider provider)
-    { _provider = (JwtAuthStateProvider)provider; }
+    public JwtHandler(JwtAuthStateProvider provider)
+    { _provider = provider; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {

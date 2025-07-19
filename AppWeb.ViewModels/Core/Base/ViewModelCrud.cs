@@ -119,7 +119,7 @@ public abstract partial class ViewModelCrud<TModel, TIdType> : ValidatableViewMo
     }
 }
 
-/// <summary>Interface for ViewModels that implement CRUD operations.</summary>
+#region Interfaces ------------------------------------------------------------
 public interface IViewModelCrud<TModel, TIdType> : IViewModelBase
     where TModel : class, new()
     where TIdType : struct
@@ -163,3 +163,4 @@ public interface IViewModelCrud<TModel, TIdType> : IViewModelBase
     /// <summary>Initializes the ViewModel with a specific entity ID.</summary>
     Task InitializeWithIdAsync(TIdType id, CancellationToken cancellationToken = default);
 }
+#endregion ---------------------------------------------------------------------

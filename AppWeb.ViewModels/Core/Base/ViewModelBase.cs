@@ -35,7 +35,7 @@ public abstract partial class ViewModelBase : ObservableObject, IViewModelBase
         finally { IsBusy = false; }
     }
 
-    // Navigation lifecycle methods for MAUI compatibility
+    /// <summary>Navigation lifecycle methods for MAUI compatibility.</summary>
     /// <summary>Called when navigating to a page with parameters.</summary>
     public virtual Task OnNavigatingToAsync(object parameter) => Task.CompletedTask;
 

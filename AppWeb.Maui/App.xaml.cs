@@ -1,55 +1,41 @@
-﻿using AppWeb.Shared.Services.Contracts;
-using AppWeb.Maui.Services;
+﻿using System.Diagnostics;
 
 namespace AppWeb.Maui;
 
 public partial class App : Application
 {
-    private readonly IAuthService _authService;
-    private readonly INavigationService _navigationService;
-    private readonly NavigationService _mauiNavigationService;
-    private readonly Action<NavigationService> _routeConfiguration;
-
-    public App(IAuthService authService, INavigationService navigationService, Action<NavigationService> routeConfiguration)
-    {
-        InitializeComponent();
-        _authService = authService;
-        _navigationService = navigationService;
-        _routeConfiguration = routeConfiguration;
-        _mauiNavigationService = navigationService as NavigationService;
-
-        //Configure routes in navigation service
-        _routeConfiguration(_mauiNavigationService);
-
-        //Initialize MainPage to AppShell
-        MainPage = new AppShell(authService, navigationService);
-        //Check for authentication and navigate accordingly
-        Startup();
-    }
-
-    private async void Startup()
+    public App()
     {
         try
-        { //Check if user is authenticated and navigate accordingly
-            bool isAuthenticated = await _authService.IsAuthenticatedAsync();
-            if (isAuthenticated) { await _navigationService.NavigateToAsync(NavigationConfig.Routes.Home); }
-            else { await _navigationService.NavigateToAsync(NavigationConfig.Routes.Login); }
+        {
+            // Inicializar componentes de la aplicación
+            InitializeComponent();
+            
+            // Establecer la página principal
+            MainPage = new AppShell();
+            
+            // Configurar manejo de excepciones no controladas
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Startup navigation failed: {ex.Message}");
-            await _navigationService.NavigateToAsync(NavigationConfig.Routes.Login);
+            Debug.WriteLine($"Error al inicializar la aplicación: {ex.Message}");
+            Debug.WriteLine($"StackTrace: {ex.StackTrace}");
         }
     }
-
-    protected override Window CreateWindow(IActivationState activationState)
+    
+    private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        var window = base.CreateWindow(activationState);
-        //Set window size and other properties if needed
-        window.Width = 800;
-        window.Height = 600;
-        window.Title = "AppWeb MAUI";
-
-        return window;
+        var exception = e.ExceptionObject as Exception;
+        Debug.WriteLine($"Excepción no controlada: {exception?.Message}");
+        Debug.WriteLine($"StackTrace: {exception?.StackTrace}");
+    }
+    
+    private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Debug.WriteLine($"Excepción de tarea no observada: {e.Exception.Message}");
+        Debug.WriteLine($"StackTrace: {e.Exception.StackTrace}");
+        e.SetObserved(); // Marcar como observada para evitar que la aplicación se cierre
     }
 }

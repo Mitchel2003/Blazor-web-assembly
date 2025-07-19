@@ -3,7 +3,7 @@ using AppWeb.Shared.Dtos;
 
 namespace AppWeb.Shared.Services.Contracts;
 
-/// <summary>Abstracción del servicio de usuarios para los ViewModels</summary>
+/// <summary>Abstraction of the user service for the ViewModels</summary>
 public interface IAuthService
 {
     /// <summary>Event raised when the authentication state changes</summary>

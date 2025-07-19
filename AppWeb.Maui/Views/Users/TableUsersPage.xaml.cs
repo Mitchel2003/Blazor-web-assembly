@@ -10,8 +10,7 @@ public partial class TableUsersPage : BaseContentPage<ITableUsersPageVM>
     public TableUsersPage(ITableUsersPageVM viewModel) : base(viewModel)
     {
         InitializeComponent();
-
-        // Subscribe to ViewModel events
+        //Subscribe to ViewModel events
         ViewModel.UserSelected += OnUserSelected;
         ViewModel.UserDeleted += OnUserDeleted;
     }
@@ -36,7 +35,7 @@ public partial class TableUsersPage : BaseContentPage<ITableUsersPageVM>
 
     protected override void OnDisappearing()
     {
-        // Unsubscribe from events to prevent memory leaks
+        //Unsubscribe from events to prevent memory leaks
         ViewModel.UserSelected -= OnUserSelected;
         ViewModel.UserDeleted -= OnUserDeleted;
         base.OnDisappearing();

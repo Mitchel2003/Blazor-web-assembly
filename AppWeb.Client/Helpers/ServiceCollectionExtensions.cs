@@ -4,9 +4,9 @@ using AppWeb.SharedClient.Services.Graphql;
 using AppWeb.Shared.Services.Contracts;
 using AppWeb.ViewModels.Core.Factory;
 using AppWeb.SharedClient.Http;
-using AppWeb.SharedClient.Auth;
 using AppWeb.Client.Services;
 using AppWeb.Client.Errors;
+using AppWeb.Client.Auth;
 
 namespace AppWeb.Client.Helpers;
 

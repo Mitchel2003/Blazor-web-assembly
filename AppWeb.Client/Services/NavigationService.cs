@@ -1,8 +1,8 @@
 using AppWeb.Shared.Services.Contracts;
 using Microsoft.AspNetCore.Components;
-using AppWeb.SharedClient.Auth;
 using Microsoft.JSInterop;
 using System.Diagnostics;
+using AppWeb.Client.Auth;
 using System.Web;
 
 namespace AppWeb.Client.Services;

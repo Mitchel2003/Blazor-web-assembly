@@ -49,6 +49,7 @@ public abstract partial class ValidatableViewModel : ViewModelBase, IValidatable
     }
 }
 
+#region Interfaces ------------------------------------------------------------
 /// <summary>Interface for view models that support validation.</summary>
 public interface IValidatable
 {
@@ -67,3 +68,4 @@ public interface IValidatable
     /// <summary>Validates a specific property and returns any error message.</summary>
     string? ValidateProperty(string propertyName, object? value);
 }
+#endregion ---------------------------------------------------------------------
